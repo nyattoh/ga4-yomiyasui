@@ -707,8 +707,8 @@ function renderChannels(channelRows) {
       datasets: [{
         label: "回数",
         data: sorted.map(r => r.sessions),
-        backgroundColor: "#3b82f6",
-        borderRadius: 4
+        backgroundColor: "#118ab2", // Blue NCS
+        borderRadius: 6
       }]
     },
     options: {
@@ -775,7 +775,7 @@ function renderDevices(deviceRows) {
   // 100% 積み上げ横棒
   destroyChart("device");
   const ctx = document.getElementById("deviceChart").getContext("2d");
-  const colors = ["#2f6f4e", "#3d5a80", "#c4a35a", "#94a3b8"];
+  const colors = ["#118ab2", "#06d6a0", "#ffd166", "#ef476f", "#073b4c"];
 
   state.charts.device = new Chart(ctx, {
     type: "bar",
@@ -853,7 +853,7 @@ function renderOS(osRows) {
       datasets: [{
         label: "回数",
         data: sorted.map(r => r.sessions),
-        backgroundColor: "#10b981", // トイグリーン
+        backgroundColor: "#06d6a0", // Caribbean Green
         borderRadius: 6
       }]
     },
@@ -878,7 +878,7 @@ function renderOS(osRows) {
       datasets: [{
         label: "人数",
         data: sorted.map(r => r.users),
-        backgroundColor: "#8b5cf6", // トイパープル
+        backgroundColor: "#ef476f", // Paradise Pink
         borderRadius: 6
       }]
     },
@@ -922,7 +922,7 @@ function renderLocation(locationRows) {
     </tr>
   `).join("");
 
-  // グラフ (トイイエロー/オレンジ)
+  // グラフ (Orange Yellow Crayola)
   destroyChart("location");
   const ctx = document.getElementById("locationChart").getContext("2d");
   state.charts.location = new Chart(ctx, {
@@ -932,7 +932,7 @@ function renderLocation(locationRows) {
       datasets: [{
         label: "回数",
         data: sorted.map(r => r.sessions),
-        backgroundColor: "#f59e0b",
+        backgroundColor: "#ffd166", // Orange Yellow Crayola
         borderRadius: 6
       }]
     },
@@ -1200,8 +1200,8 @@ function handleCopyTag() {
     const btn = document.getElementById("btnCopyTag");
     const originalText = btn.textContent;
     btn.textContent = "✅ コピー完了！";
-    btn.style.backgroundColor = "#10b981";
-    btn.style.color = "#ffffff";
+    btn.style.backgroundColor = "#06d6a0";
+    btn.style.color = "#073b4c";
     setTimeout(() => {
       btn.textContent = originalText;
       btn.style.backgroundColor = "";

@@ -6,45 +6,67 @@
 :root {
   color-scheme: light;
   
-  /* トイカラー パレット (遊び心がありつつ洗練された知育玩具カラー) */
-  --toy-blue: #3b82f6;
-  --toy-blue-hover: #2563eb;
-  --toy-blue-light: #eff6ff;
-  --toy-blue-border: #93c5fd;
+  /* ========================================================================
+     CSS HEX - 指定カラーパレット (Coolors 5 Colors)
+     ======================================================================== */
+  --paradise-pink: #ef476fff;
+  --orange-yellow-crayola: #ffd166ff;
+  --caribbean-green: #06d6a0ff;
+  --blue-ncs: #118ab2ff;
+  --midnight-green-eagle-green: #073b4cff;
 
-  --toy-green: #10b981;
-  --toy-green-hover: #059669;
-  --toy-green-light: #ecfdf5;
-  --toy-green-border: #a7f3d0;
+  /* ========================================================================
+     トイカラー セマンティックマッピング
+     ======================================================================== */
+  /* 1. Blue NCS (#118ab2): メインブランド、プライマリ操作、主要バーグラフ */
+  --toy-blue: #118ab2;
+  --toy-blue-hover: #0d7091;
+  --toy-blue-light: #e7f5f9;
+  --toy-blue-border: #91d2e4;
 
-  --toy-yellow: #f59e0b;
-  --toy-yellow-light: #fef3c7;
-  --toy-yellow-border: #fde68a;
+  /* 2. Caribbean Green (#06d6a0): 成果・成功、本番Live、良好、上昇 */
+  --toy-green: #06d6a0;
+  --toy-green-hover: #05b88a;
+  --toy-green-light: #e6faf5;
+  --toy-green-border: #7ee8cf;
 
-  --toy-orange: #f97316;
-  --toy-orange-light: #fff7ed;
+  /* 3. Orange Yellow Crayola (#ffd166): デモ、注意、警告、地域アクセント */
+  --toy-yellow: #ffd166;
+  --toy-yellow-hover: #f0bd4a;
+  --toy-yellow-light: #fffbeb;
+  --toy-yellow-border: #fde089;
+  --toy-yellow-text: #78350f;
 
-  --toy-purple: #8b5cf6;
-  --toy-purple-hover: #7c3aed;
-  --toy-purple-light: #f5f3ff;
-  --toy-purple-border: #ddd6fe;
+  /* 4. Paradise Pink (#ef476f): AI相談、キーイベント、注目、アクセントボタン */
+  --toy-pink: #ef476f;
+  --toy-pink-hover: #db335c;
+  --toy-pink-light: #fef0f3;
+  --toy-pink-border: #fbaec0;
 
-  --toy-pink: #ec4899;
+  /* 5. Midnight Green Eagle Green (#073b4c): メインテキスト、ベースシャドウ、深み */
+  --toy-dark: #073b4c;
+  --toy-dark-hover: #04242e;
+  --toy-dark-light: #ecf3f5;
+  --toy-dark-border: #a3c2cb;
+
+  /* 前期比・差分カラー */
+  --diff-up: #06d6a0;
+  --diff-down: #ef476f;
 
   /* 背景・ベース */
-  --bg-main: #f1f5f9;
+  --bg-main: #f4f7f6;
   --bg-card: #ffffff;
-  --text-main: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --border-dark: #cbd5e1;
+  --text-main: #073b4c;
+  --text-secondary: #215566;
+  --text-muted: #5c7e8a;
+  --border: #dbe7eb;
+  --border-dark: #b6cdd4;
 
   /* トイ風シャドウ・立体感 */
   --toy-shadow-sm: 0 2px 0 var(--border);
-  --toy-shadow-btn: 0 3px 0 rgba(0, 0, 0, 0.12);
-  --toy-shadow-card: 0 4px 0 #e2e8f0, 0 10px 20px -3px rgba(15, 23, 42, 0.05);
-  --toy-shadow-card-hover: 0 6px 0 #cbd5e1, 0 14px 24px -4px rgba(15, 23, 42, 0.08);
+  --toy-shadow-btn: 0 3px 0 rgba(7, 59, 76, 0.2);
+  --toy-shadow-card: 0 4px 0 #dbe7eb, 0 10px 20px -3px rgba(7, 59, 76, 0.05);
+  --toy-shadow-card-hover: 0 6px 0 #b6cdd4, 0 14px 24px -4px rgba(7, 59, 76, 0.08);
 
   /* タイポグラフィ・角丸 */
   --font-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Sans", "Noto Sans JP", sans-serif;
@@ -318,20 +340,53 @@ h1 {
   box-shadow: 0 1px 0 var(--toy-blue-hover);
 }
 
-.btn-purple {
-  background: var(--toy-purple);
-  border-color: var(--toy-purple-hover);
+.btn-pink, .btn-purple {
+  background: var(--toy-pink);
+  border-color: var(--toy-pink-hover);
   color: #ffffff;
-  box-shadow: 0 3px 0 var(--toy-purple-hover);
+  box-shadow: 0 3px 0 var(--toy-pink-hover);
 }
 
-.btn-purple:hover {
-  background: var(--toy-purple-hover);
+.btn-pink:hover, .btn-purple:hover {
+  background: var(--toy-pink-hover);
 }
 
-.btn-purple:active {
+.btn-pink:active, .btn-purple:active {
   transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--toy-purple-hover);
+  box-shadow: 0 1px 0 var(--toy-pink-hover);
+}
+
+.btn-green {
+  background: var(--toy-green);
+  border-color: var(--toy-green-hover);
+  color: var(--toy-dark);
+  box-shadow: 0 3px 0 var(--toy-green-hover);
+}
+
+.btn-green:hover {
+  background: var(--toy-green-hover);
+  color: #ffffff;
+}
+
+.btn-green:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--toy-green-hover);
+}
+
+.btn-yellow {
+  background: var(--toy-yellow);
+  border-color: var(--toy-yellow-hover);
+  color: var(--toy-dark);
+  box-shadow: 0 3px 0 var(--toy-yellow-hover);
+}
+
+.btn-yellow:hover {
+  background: var(--toy-yellow-hover);
+}
+
+.btn-yellow:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--toy-yellow-hover);
 }
 
 .btn-icon {
@@ -529,18 +584,18 @@ tbody tr:hover {
 }
 
 /* ==========================================================================
-   AI 相談アシスタント (AI Assistant)
+   AI 相談アシスタント (AI Assistant) - Paradise Pink (#ef476f) Accent
    ========================================================================== */
 .ai-card {
-  border: 2.5px solid var(--toy-purple-border);
-  background: linear-gradient(180deg, #ffffff 0%, var(--toy-purple-light) 100%);
+  border: 2.5px solid var(--toy-pink-border);
+  background: linear-gradient(180deg, #ffffff 0%, var(--toy-pink-light) 100%);
 }
 
 .ai-header-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--toy-purple);
+  background: var(--toy-pink);
   color: #ffffff;
   padding: 4px 12px;
   border-radius: var(--radius-full);
@@ -565,16 +620,16 @@ tbody tr:hover {
   font-weight: 700;
   font-family: inherit;
   background: #ffffff;
-  color: var(--toy-purple);
-  border: 1.5px solid var(--toy-purple-border);
+  color: var(--toy-pink);
+  border: 1.5px solid var(--toy-pink-border);
   border-radius: var(--radius-full);
   cursor: pointer;
-  box-shadow: 0 2px 0 var(--toy-purple-border);
+  box-shadow: 0 2px 0 var(--toy-pink-border);
   transition: all 0.15s ease;
 }
 
 .ai-chip:hover {
-  background: var(--toy-purple);
+  background: var(--toy-pink);
   color: #ffffff;
   transform: translateY(-1px);
 }
@@ -585,20 +640,20 @@ tbody tr:hover {
 
 .ai-response-box {
   background: #ffffff;
-  border: 2px solid var(--toy-purple-border);
+  border: 2px solid var(--toy-pink-border);
   border-radius: var(--radius-md);
   padding: 18px 20px;
   margin-top: 14px;
   font-size: 0.95rem;
   line-height: 1.7;
   color: var(--text-main);
-  box-shadow: 0 3px 0 var(--toy-purple-border);
+  box-shadow: 0 3px 0 var(--toy-pink-border);
 }
 
 .ai-response-box h4 {
   margin: 0 0 10px;
   font-size: 1.05rem;
-  color: var(--toy-purple);
+  color: var(--toy-pink);
   display: flex;
   align-items: center;
   gap: 6px;
