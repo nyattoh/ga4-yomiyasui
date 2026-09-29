@@ -116,6 +116,7 @@ function setupEventListeners() {
       document.querySelectorAll(".btn-period").forEach(b => b.classList.remove("active"));
       e.target.classList.add("active");
       state.selectedPeriod = e.target.dataset.period;
+      resetViewToLoading();
       refreshCurrentView();
     });
   });
@@ -123,6 +124,7 @@ function setupEventListeners() {
   // プロパティ選択
   document.getElementById("propertySelect").addEventListener("change", e => {
     state.selectedPropertyId = e.target.value;
+    resetViewToLoading();
     if (state.selectedPropertyId === "demo") {
       state.mode = "demo";
       updateBadge();
@@ -136,6 +138,7 @@ function setupEventListeners() {
 
   // 更新ボタン
   document.getElementById("btnRefresh").addEventListener("click", () => {
+    resetViewToLoading();
     if (state.mode === "live") {
       clearCacheForCurrent();
       fetchLiveData();
@@ -522,6 +525,67 @@ function clearCacheForCurrent() {
   sessionStorage.removeItem(key);
 }
 
+function resetViewToLoading() {
+  // 1. 人は来ているか
+  const ovVerdict = document.getElementById("overviewVerdict");
+  if (ovVerdict) ovVerdict.textContent = "データを読み込み中...";
+  const mS = document.getElementById("metricSessions");
+  if (mS) mS.textContent = "-";
+  const mSDiff = document.getElementById("metricSessionsDiff");
+  if (mSDiff) mSDiff.textContent = "前期間比: -";
+  const mU = document.getElementById("metricUsers");
+  if (mU) mU.textContent = "-";
+  const mUDiff = document.getElementById("metricUsersDiff");
+  if (mUDiff) mUDiff.textContent = "前期間比: -";
+
+  // 2. 見ているか
+  const engVerdict = document.getElementById("engagementVerdict");
+  if (engVerdict) engVerdict.textContent = "データを読み込み中...";
+  const engText = document.getElementById("engagementRateText");
+  if (engText) engText.textContent = "0%";
+  const engBar = document.getElementById("engagementBar");
+  if (engBar) engBar.style.width = "0%";
+
+  // 3. どこから来たか
+  const chVerdict = document.getElementById("channelVerdict");
+  if (chVerdict) chVerdict.textContent = "データを読み込み中...";
+  const chTable = document.getElementById("channelTable");
+  if (chTable) chTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">データを取得中...</td></tr>';
+  destroyChart("channel");
+
+  // 4. 成果はあるか
+  const keyVerdict = document.getElementById("keyEventsVerdict");
+  if (keyVerdict) keyVerdict.textContent = "データを読み込み中...";
+  const mKey = document.getElementById("metricKeyEvents");
+  if (mKey) mKey.textContent = "-";
+
+  // 5. どんな端末か
+  const devVerdict = document.getElementById("deviceVerdict");
+  if (devVerdict) devVerdict.textContent = "データを読み込み中...";
+  const devTable = document.getElementById("deviceTable");
+  if (devTable) devTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">データを取得中...</td></tr>';
+  destroyChart("device");
+
+  // 6. どの OS か
+  const osVerdict = document.getElementById("osVerdict");
+  if (osVerdict) osVerdict.textContent = "データを読み込み中...";
+  const osTable = document.getElementById("osTable");
+  if (osTable) osTable.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">データを取得中...</td></tr>';
+  destroyChart("osSessions");
+  destroyChart("osUsers");
+
+  // 7. どの国・地域からか
+  const locVerdict = document.getElementById("locationVerdict");
+  if (locVerdict) locVerdict.textContent = "データを読み込み中...";
+  const locTable = document.getElementById("locationTable");
+  if (locTable) locTable.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">データを取得中...</td></tr>';
+  destroyChart("location");
+
+  // AIアドバイザーの回答枠を閉じる
+  const aiBox = document.getElementById("aiResponseBox");
+  if (aiBox) aiBox.style.display = "none";
+}
+
 async function fetchLiveData() {
   const propId = state.selectedPropertyId;
   const period = state.selectedPeriod;
@@ -550,25 +614,26 @@ async function fetchLiveData() {
   };
 
   try {
+    // 各クエリを安全に実行（どれか1つが失敗しても他は表示できるようにフォールバック）
     const [overviewCur, overviewPrev, channelRes, deviceRes, osRes, locationRes] = await Promise.all([
-      runReport(propId, dateConf.current, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
-      runReport(propId, dateConf.previous, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
-      runReport(propId, dateConf.current, ["sessionDefaultChannelGroup"], ["sessions", "activeUsers"], headers),
-      runReport(propId, dateConf.current, ["deviceCategory"], ["sessions", "activeUsers"], headers),
-      runReport(propId, dateConf.current, ["operatingSystem"], ["sessions", "activeUsers"], headers),
-      runReport(propId, dateConf.current, ["city", "country"], ["sessions", "activeUsers"], headers)
+      runReportSafe(propId, dateConf.current, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
+      runReportSafe(propId, dateConf.previous, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
+      runReportSafe(propId, dateConf.current, ["sessionDefaultChannelGroup"], ["sessions", "activeUsers"], headers),
+      runReportSafe(propId, dateConf.current, ["deviceCategory"], ["sessions", "activeUsers"], headers),
+      runReportSafe(propId, dateConf.current, ["operatingSystem"], ["sessions", "activeUsers"], headers),
+      runReportSafe(propId, dateConf.current, ["city", "country"], ["sessions", "activeUsers"], headers)
     ]);
 
     // 整形
     state.data = {
       overview: {
-        current: parseOverviewRow(overviewCur.rows),
-        previous: parseOverviewRow(overviewPrev.rows)
+        current: parseOverviewRow(overviewCur ? overviewCur.rows : null),
+        previous: parseOverviewRow(overviewPrev ? overviewPrev.rows : null)
       },
-      channel: parseRows(channelRes.rows, "sessionDefaultChannelGroup"),
-      device: parseRows(deviceRes.rows, "deviceCategory"),
-      os: parseRows(osRes.rows, "operatingSystem"),
-      location: parseLocationRows(locationRes.rows)
+      channel: parseRows(channelRes ? channelRes.rows : null, "sessionDefaultChannelGroup"),
+      device: parseRows(deviceRes ? deviceRes.rows : null, "deviceCategory"),
+      os: parseRows(osRes ? osRes.rows : null, "operatingSystem"),
+      location: parseLocationRows(locationRes ? locationRes.rows : null)
     };
 
     // キャッシュ保存
@@ -578,6 +643,19 @@ async function fetchLiveData() {
   } catch (err) {
     console.error("fetchLiveData error:", err);
     showToast(`データ取得エラー: ${err.message}`);
+  }
+}
+
+async function runReportSafe(propId, dateRange, dimensions, metrics, headers) {
+  try {
+    return await runReport(propId, dateRange, dimensions, metrics, headers);
+  } catch (err) {
+    console.warn(`Query failed for dimensions [${dimensions.join(", ")}]:`, err.message);
+    // 権限エラー(403)などの場合はそのまま伝播してモーダルを出す
+    if (err.message.includes("403") || err.message.includes("閲覧権限")) {
+      throw err;
+    }
+    return { rows: [] };
   }
 }
 
@@ -724,9 +802,8 @@ function pct(n, total) {
 
 // 1. 人は来ているか
 function renderOverview(overview) {
-  if (!overview || !overview.current) return;
-  const cur = overview.current;
-  const prev = overview.previous || cur;
+  const cur = overview?.current || { sessions: 0, activeUsers: 0, engagementRate: 0, keyEvents: 0 };
+  const prev = overview?.previous || cur;
 
   const sDiff = prev.sessions > 0 ? ((cur.sessions - prev.sessions) / prev.sessions) * 100 : 0;
   const uDiff = prev.activeUsers > 0 ? ((cur.activeUsers - prev.activeUsers) / prev.activeUsers) * 100 : 0;
@@ -735,25 +812,35 @@ function renderOverview(overview) {
   const uSign = uDiff >= 0 ? "+" : "";
 
   document.getElementById("metricSessions").textContent = fmt(cur.sessions);
-  document.getElementById("metricSessionsDiff").textContent = `前期間比: ${sSign}${sDiff.toFixed(1)}%`;
+  document.getElementById("metricSessionsDiff").textContent = prev.sessions > 0 ? `前期間比: ${sSign}${sDiff.toFixed(1)}%` : "前期間比: -";
   document.getElementById("metricSessionsDiff").style.color = sDiff >= 0 ? "var(--diff-down)" : "var(--diff-up)";
 
   document.getElementById("metricUsers").textContent = fmt(cur.activeUsers);
-  document.getElementById("metricUsersDiff").textContent = `前期間比: ${uSign}${uDiff.toFixed(1)}%`;
+  document.getElementById("metricUsersDiff").textContent = prev.activeUsers > 0 ? `前期間比: ${uSign}${uDiff.toFixed(1)}%` : "前期間比: -";
   document.getElementById("metricUsersDiff").style.color = uDiff >= 0 ? "var(--diff-down)" : "var(--diff-up)";
 
   // 結論文
-  const diffTxt = prev.sessions > 0 ? `（前期間比 ${sSign}${sDiff.toFixed(1)}%）` : "";
-  document.getElementById("overviewVerdict").textContent =
-    `直近の訪問回数は ${fmt(cur.sessions)}回 ${diffTxt}、訪れた人数は ${fmt(cur.activeUsers)}人 です。`;
+  if (cur.sessions === 0 && cur.activeUsers === 0) {
+    document.getElementById("overviewVerdict").textContent =
+      "直近の訪問データはまだ計測されていません。タグがサイトに正しく設置されているかご確認ください。";
+  } else {
+    const diffTxt = prev.sessions > 0 ? `（前期間比 ${sSign}${sDiff.toFixed(1)}%）` : "";
+    document.getElementById("overviewVerdict").textContent =
+      `直近の訪問回数は ${fmt(cur.sessions)}回 ${diffTxt}、訪れた人数は ${fmt(cur.activeUsers)}人 です。`;
+  }
 }
 
 // 2. 見ているか
 function renderEngagement(cur) {
-  if (!cur) return;
-  const ratePct = Math.round((cur.engagementRate || 0) * 100);
+  const ratePct = cur ? Math.round((cur.engagementRate || 0) * 100) : 0;
   document.getElementById("engagementRateText").textContent = `${ratePct}%`;
   document.getElementById("engagementBar").style.width = `${ratePct}%`;
+
+  if (!cur || (cur.sessions === 0 && cur.activeUsers === 0)) {
+    document.getElementById("engagementVerdict").textContent =
+      "まだ滞在・閲覧データがありません。訪問が計測されると比率が自動計算されます。";
+    return;
+  }
 
   let verdict = `訪問者のうち ${ratePct}% がサイトをしっかり見ています。`;
   if (ratePct >= 60) {
@@ -766,7 +853,17 @@ function renderEngagement(cur) {
 
 // 3. どこから来たか
 function renderChannels(channelRows) {
-  if (!channelRows || channelRows.length === 0) return;
+  destroyChart("channel");
+  const tbody = document.getElementById("channelTable");
+
+  if (!channelRows || channelRows.length === 0) {
+    document.getElementById("channelVerdict").textContent = "この期間の流入経路データはまだありません（0件）。";
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">まだ流入データが計測されていません</td></tr>';
+    }
+    return;
+  }
+
   const sorted = [...channelRows].sort((a, b) => b.sessions - a.sessions).slice(0, 6);
   const totalS = channelRows.reduce((a, r) => a + r.sessions, 0);
   const totalU = channelRows.reduce((a, r) => a + r.users, 0);
@@ -778,7 +875,6 @@ function renderChannels(channelRows) {
     `最も多い流入は「${top1.label}」で、全体の ${topPct}（${fmt(top1.sessions)}回）を占めています。`;
 
   // 表
-  const tbody = document.getElementById("channelTable");
   tbody.innerHTML = sorted.map(r => `
     <tr>
       <td>${r.label}</td>
@@ -790,7 +886,6 @@ function renderChannels(channelRows) {
   `).join("");
 
   // グラフ
-  destroyChart("channel");
   const ctx = document.getElementById("channelChart").getContext("2d");
   state.charts.channel = new Chart(ctx, {
     type: "bar",
@@ -819,8 +914,7 @@ function renderChannels(channelRows) {
 
 // 4. 成果はあるか
 function renderKeyEvents(cur) {
-  if (!cur) return;
-  const count = cur.keyEvents || 0;
+  const count = cur?.keyEvents || 0;
   document.getElementById("metricKeyEvents").textContent = fmt(count);
 
   if (count > 0) {
@@ -828,13 +922,23 @@ function renderKeyEvents(cur) {
       `期間中に ${fmt(count)}回 の目標アクション（キーイベント）が達成されました。`;
   } else {
     document.getElementById("keyEventsVerdict").textContent =
-      `成果アクションは 0回 です。サイトの目標（お問い合わせや購入など）が GA4 側でまだ「キーイベント」として設定されていない可能性があります。`;
+      `成果アクションは 0回 です。サイトの目標（お問い合わせや購入など）が GA4 側でまだ「キーイベント」として設定されていないか、この期間の達成がありません。`;
   }
 }
 
 // 5. どんな端末か
 function renderDevices(deviceRows) {
-  if (!deviceRows || deviceRows.length === 0) return;
+  destroyChart("device");
+  const tbody = document.getElementById("deviceTable");
+
+  if (!deviceRows || deviceRows.length === 0) {
+    document.getElementById("deviceVerdict").textContent = "この期間の端末データはまだありません（0件）。";
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">まだ端末データが計測されていません</td></tr>';
+    }
+    return;
+  }
+
   const totalS = deviceRows.reduce((a, r) => a + r.sessions, 0);
   const totalU = deviceRows.reduce((a, r) => a + r.users, 0);
 
@@ -853,7 +957,6 @@ function renderDevices(deviceRows) {
   document.getElementById("deviceVerdict").textContent = verdict;
 
   // 表
-  const tbody = document.getElementById("deviceTable");
   tbody.innerHTML = deviceRows.map(r => `
     <tr>
       <td>${r.label}</td>
@@ -865,7 +968,6 @@ function renderDevices(deviceRows) {
   `).join("");
 
   // 100% 積み上げ横棒
-  destroyChart("device");
   const ctx = document.getElementById("deviceChart").getContext("2d");
   const colors = ["#118ab2", "#06d6a0", "#ffd166", "#ef476f", "#073b4c"];
 
@@ -909,7 +1011,18 @@ function renderDevices(deviceRows) {
 
 // 6. どの OS か
 function renderOS(osRows) {
-  if (!osRows || osRows.length === 0) return;
+  destroyChart("osSessions");
+  destroyChart("osUsers");
+  const tbody = document.getElementById("osTable");
+
+  if (!osRows || osRows.length === 0) {
+    document.getElementById("osVerdict").textContent = "この期間のOSデータはまだありません（0件）。";
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">まだOSデータが計測されていません</td></tr>';
+    }
+    return;
+  }
+
   const sorted = [...osRows].sort((a, b) => b.sessions - a.sessions).slice(0, 6);
   const totalS = osRows.reduce((a, r) => a + r.sessions, 0);
   const totalU = osRows.reduce((a, r) => a + r.users, 0);
@@ -920,7 +1033,6 @@ function renderOS(osRows) {
     `回数も人数も「${topOS.label}」が最多（全体の ${pct(topOS.sessions, totalS)}）です。`;
 
   // 表
-  const tbody = document.getElementById("osTable");
   tbody.innerHTML = sorted.map(r => `
     <tr>
       <td>${r.label}</td>
@@ -932,9 +1044,6 @@ function renderOS(osRows) {
   `).join("");
 
   // 横棒2枚 (回数 / 人数)
-  destroyChart("osSessions");
-  destroyChart("osUsers");
-
   const labels = sorted.map(r => r.label);
 
   const ctxS = document.getElementById("osSessions").getContext("2d");
@@ -990,7 +1099,17 @@ function renderOS(osRows) {
 
 // 7. どの国・地域からか
 function renderLocation(locationRows) {
-  if (!locationRows || locationRows.length === 0) return;
+  destroyChart("location");
+  const tbody = document.getElementById("locationTable");
+
+  if (!locationRows || locationRows.length === 0) {
+    document.getElementById("locationVerdict").textContent = "この期間の地域データはまだありません（0件）。";
+    if (tbody) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 24px; color: var(--text-muted);">まだ地域データが計測されていません</td></tr>';
+    }
+    return;
+  }
+
   const sorted = [...locationRows].sort((a, b) => b.sessions - a.sessions).slice(0, 7);
   const totalS = locationRows.reduce((a, r) => a + r.sessions, 0);
   const totalU = locationRows.reduce((a, r) => a + r.users, 0);
@@ -1002,7 +1121,6 @@ function renderLocation(locationRows) {
     `アクセスが最も多い地域は「${top1.label}」で、全体の ${topPct}（${fmt(top1.sessions)}回）です。`;
 
   // 表
-  const tbody = document.getElementById("locationTable");
   tbody.innerHTML = sorted.map(r => `
     <tr>
       <td>${r.label}</td>
@@ -1015,7 +1133,6 @@ function renderLocation(locationRows) {
   `).join("");
 
   // グラフ (Orange Yellow Crayola)
-  destroyChart("location");
   const ctx = document.getElementById("locationChart").getContext("2d");
   state.charts.location = new Chart(ctx, {
     type: "bar",
