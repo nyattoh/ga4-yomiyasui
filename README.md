@@ -130,15 +130,16 @@ ga4-yomiyasui/
 
 ---
 
-## 🤖 Python CLI 自動化ツール
+## 🤖 Python CLI 自動化ツール（Tracking-as-Code）
 
-プロパティ・データストリーム・キーイベントの作成を自動化するPython CLIを `automation/` に同梱しています。
+GA4 のプロパティ・データストリーム・カスタム定義を YAML で宣言し、`plan` / `apply` で差分適用する CLI を `automation/` に同梱しています（プライベートリポジトリ `nyattoh/ga4-setup-automation` の実コードを移植）。
 
 ```bash
 cd automation
-pip install -e .
-ga4-setup list-accounts
-ga4-setup setup --account-id YOUR_ID --name "サイト名" --url "https://example.com"
+pip install -e ".[dev]"
+ga4-sync plan --config config/ga4-config.example.yaml
+# 適用は意図したときのみ（本番 GA4 を変更します）
+# ga4-sync apply --config your-config.yaml
 ```
 
 詳細は [automation/README.md](automation/README.md) を参照してください。

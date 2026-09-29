@@ -1,36 +1,62 @@
-"""クライアントテスト - WEBストリーム限定確認"""
+from unittest.mock import MagicMock
+
 import pytest
-from ga4_automation.client import GA4Client
+from google.api_core.exceptions import NotFound, PermissionDenied
+
+from src.client import GA4AdminClient
 
 
-def test_non_web_stream_raises_not_implemented():
-    """
-    iOSやAndroidストリーム作成時はNotImplementedErrorで fail-loud
-    
-    WEB以外のストリームタイプは未実装であることを明示的にエラーで通知
-    """
-    client = GA4Client()
-    
-    with pytest.raises(NotImplementedError) as exc_info:
-        client.create_data_stream(
-            property_id="123456",
-            display_name="iOS App",
-            stream_type="IOS",
-        )
-    
-    assert "未サポート" in str(exc_info.value)
-    assert "WEB" in str(exc_info.value)
+def _wrap(mock_inner):
+    return GA4AdminClient(client=mock_inner)
 
 
-def test_android_stream_not_supported():
-    """Androidストリームも未サポート"""
-    client = GA4Client()
-    
-    with pytest.raises(NotImplementedError) as exc_info:
-        client.create_data_stream(
-            property_id="123456",
-            display_name="Android App",
-            stream_type="ANDROID",
-        )
-    
-    assert "未サポート" in str(exc_info.value)
+def test_get_property_not_found_returns_none():
+    inner = MagicMock()
+    inner.get_property.side_effect = NotFound("missing")
+    assert _wrap(inner).get_property("properties/1") is None
+
+
+def test_get_property_other_error_reraises():
+    inner = MagicMock()
+    inner.get_property.side_effect = PermissionDenied("denied")
+    with pytest.raises(PermissionDenied):
+        _wrap(inner).get_property("properties/1")
+
+
+def test_list_data_streams_not_found_returns_empty():
+    inner = MagicMock()
+    inner.list_data_streams.side_effect = NotFound("missing")
+    assert _wrap(inner).list_data_streams("properties/1") == []
+
+
+def test_list_data_streams_other_error_reraises():
+    inner = MagicMock()
+    inner.list_data_streams.side_effect = PermissionDenied("denied")
+    with pytest.raises(PermissionDenied):
+        _wrap(inner).list_data_streams("properties/1")
+
+
+def test_list_custom_dimensions_not_found_returns_empty():
+    inner = MagicMock()
+    inner.list_custom_dimensions.side_effect = NotFound("missing")
+    assert _wrap(inner).list_custom_dimensions("properties/1") == []
+
+
+def test_list_custom_dimensions_other_error_reraises():
+    inner = MagicMock()
+    inner.list_custom_dimensions.side_effect = PermissionDenied("denied")
+    with pytest.raises(PermissionDenied):
+        _wrap(inner).list_custom_dimensions("properties/1")
+
+
+def test_list_custom_metrics_not_found_returns_empty():
+    inner = MagicMock()
+    inner.list_custom_metrics.side_effect = NotFound("missing")
+    assert _wrap(inner).list_custom_metrics("properties/1") == []
+
+
+def test_list_custom_metrics_other_error_reraises():
+    inner = MagicMock()
+    inner.list_custom_metrics.side_effect = PermissionDenied("denied")
+    with pytest.raises(PermissionDenied):
+        _wrap(inner).list_custom_metrics("properties/1")

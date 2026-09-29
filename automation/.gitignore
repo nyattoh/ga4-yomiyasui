@@ -1,16 +1,12 @@
-# Secrets and credentials
-client_secret*.json
-credentials/
-*.key
-*.pem
-.env
-.env.local
-
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,28 +20,55 @@ parts/
 sdist/
 var/
 wheels/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
+env.bak/
+venv.bak/
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
-# IDE
+# IDE & Editors
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# OS
-.DS_Store
-Thumbs.db
+# Sensitive Keys & Credentials
+credentials/
+service-account*.json
+*credentials*.json
+*.key
+*.pem
+.env.local
+.env.*.local
+
+# Logs & temp
+*.log
+tmp/
+scratch/
+
+# OAuth desktop client secrets (unused under GIS Token Model; keep quarantined)
+client_secret*.json
+*apps.googleusercontent.com.json
+
+# Pytest / caches
+.pytest_cache/
+
+# Nested separate repo and zip noise (do not vendor into this package)
+ga4-yomiyasui/
+ga4-yomiyasui.zip
+
+# Local agent / IDE scratch
+.gemini/
+.kotavideo/
+
+# OAuth tokens
+token.json
+

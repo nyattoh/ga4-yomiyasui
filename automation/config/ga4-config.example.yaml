@@ -1,0 +1,66 @@
+version: "1.0"
+
+# Optional: Required only when creating a brand new property under an Account
+# account_id: "accounts/123456789"
+
+property:
+  # If specifying an existing property, set property_id (e.g. 123456789 or properties/123456789)
+  # Leave empty or omit if creating a new property
+  property_id: "properties/123456789"
+  display_name: "My Awesome Web App (Production)"
+  time_zone: "Asia/Tokyo"
+  currency_code: "JPY"
+  industry_category: "TECHNOLOGY"
+
+data_streams:
+  - name: "Web Production Stream"
+    type: "WEB"
+    default_uri: "https://example.com"
+
+custom_dimensions:
+  # Event-scoped dimensions (Max 50 for Standard, 125 for 360)
+  - parameter_name: "content_category"
+    display_name: "Content Category"
+    description: "Category of the viewed content or article"
+    scope: "EVENT"
+
+  - parameter_name: "author_name"
+    display_name: "Author Name"
+    description: "Name of the writer or contributor"
+    scope: "EVENT"
+
+  - parameter_name: "ab_test_variant"
+    display_name: "A/B Test Variant"
+    description: "Assigned variant name for experimentation"
+    scope: "EVENT"
+
+  - parameter_name: "cta_location"
+    display_name: "CTA Location"
+    description: "Location of the clicked Call To Action button"
+    scope: "EVENT"
+
+  # User-scoped dimensions (Max 25 for Standard, 100 for 360)
+  - parameter_name: "user_membership_tier"
+    display_name: "Membership Tier"
+    description: "User subscription tier (free, bronze, gold)"
+    scope: "USER"
+    disallow_ads_personalization: false
+
+  - parameter_name: "user_login_status"
+    display_name: "Login Status"
+    description: "Whether the user is currently logged in"
+    scope: "USER"
+
+custom_metrics:
+  # Event-scoped custom metrics (Max 50 for Standard, 125 for 360)
+  - parameter_name: "scroll_depth_percent"
+    display_name: "Scroll Depth Percentage"
+    description: "Deepest scroll percentage reached on the page"
+    measurement_unit: "STANDARD"
+    scope: "EVENT"
+
+  - parameter_name: "reading_time_seconds"
+    display_name: "Reading Time (Seconds)"
+    description: "Active reading time spent on article"
+    measurement_unit: "SECONDS"
+    scope: "EVENT"

@@ -51,3 +51,10 @@ htmlcov/
 # OS
 .DS_Store
 Thumbs.db
+
+# Automation package secrets / local config
+automation/credentials/
+automation/client_secret*.json
+automation/**/token.json
+automation/service-account*.json
+*apps.googleusercontent.com.json

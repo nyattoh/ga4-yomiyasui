@@ -1,131 +1,133 @@
-# GA4 自動セットアップ CLI
+# GA4 Setup Automation (`ga4-sync`)
 
-GA4（Google Analytics 4）のプロパティ・データストリーム・キーイベントを自動作成するPython CLIツールです。
+> このパッケージは [ga4-yomiyasui](https://github.com/nyattoh/ga4-yomiyasui) リポジトリの automation/ 配下に同梱されています。GitHub Pages 用の静的ファイル（index.html 等）はリポジトリルートに置き、CLI はここから pip install -e . / ga4-sync で利用します。
 
-## 🎯 特徴
 
-- **エラー分類**: NotFound (404) と Permission (403) を明確に区別
-- **property_id永続化**: 作成後のプロパティIDを自動的にYAMLに保存
-- **WEBストリーム限定**: iOS/Androidは未実装で明示的にエラー通知（fail-loud）
-- **クォータ管理**: APIレート制限をチェック
-- **シンプルな設計**: 最小限の依存関係で動作
+Google Analytics 4 (GA4) の構成（プロパティ、データストリーム、カスタムディメンション、カスタム指標）をコードとして管理する **Tracking-as-Code (IaC)** CLI ツールです。
 
-## 📦 インストール
+Terraform のように、適用前に変更内容をカラー表示で確認できる `plan`（ドライラン差分検出）と、冪等に同期する `apply` を備えています。また、GA4 特有の上限枠（イベントディメンション50個、ユーザーディメンション25個など）を事前にシミュレーションする **Quota Guardrail** を内蔵しています。
+
+---
+
+## 🌟 特長・差別化ポイント
+
+1. **宣言的設定 (Declarative Schema)**:
+   - トラッキング定義を YAML で Git 管理（GitOps）。Pull Request でのレビューが可能。
+2. **`plan` (事前差分・ドライラン)**:
+   - GA4 のリモート状態を取得し、新規作成（CREATE）、更新（UPDATE）、スキップ（NOOP）を識別して表示。
+3. **`apply` (冪等同期)**:
+   - 変更が必要な差分のみを API に送信。何度実行しても安全に定義通りの状態に収束。
+4. **Quota Guardrail (上限警告エンジン)**:
+   - Standard / 360 の枠に対して、何%消費するかを事前にシミュレーションし、あふれる場合は実行を停止。
+5. **`inspect` & `export` (リバースエンジニアリング)**:
+   - 既存の GA4 プロパティの状態・クォータを可視化。
+   - 既存プロパティから YAML 設定ファイルを逆生成して即座にコード管理へ移行可能。
+
+---
+
+## 🚀 クイックスタート
+
+### 1. インストール
 
 ```bash
-cd automation
+# パッケージのインストール
 pip install -e .
 ```
 
-または開発モードで:
+### 2. Google Cloud 側の準備
+
+1. [Google Cloud Console](https://console.cloud.google.com/) でプロジェクトを作成または選択します。
+2. **Google Analytics Admin API** を有効化します。
+3. **サービスアカウント** を作成し、JSON キーをダウンロードします（例: `credentials.json`）。
+4. [Google Analytics 管理画面](https://analytics.google.com/) の「アカウントのアクセス管理」または「プロパティのアクセス管理」から、作成したサービスアカウントのメールアドレスに **「編集者」または「管理者」** の権限を付与します。
+
+> ⚠️ **セキュリティ注意**: `credentials.json` などの認証キーは絶対に Git にコミットしないでください（`.gitignore` に設定済みです）。
+
+---
+
+## 📖 コマンドの使い方
+
+### ① 既存 GA4 プロパティの状況を確認 (`inspect`)
 
 ```bash
-pip install -e ".[dev]"
+python -m src.cli inspect --property-id 123456789 --credentials credentials.json
 ```
 
-## 🚀 使い方
+### ② 既存 GA4 プロパティを YAML 設定ファイルに書き出し (`export`)
 
-### 1. 認証情報の準備
-
-Google Cloud Consoleで OAuth 2.0 クライアントIDを作成し、`credentials.json` として保存します。
-
-詳細は [親READMEのGoogle Cloud設定手順](../README.md#-google-cloud-の設定手順oauth-クライアントidの取得) を参照してください。
-
-### 2. アカウント一覧を確認
+既存の設定をそのまま IaC 化できます：
 
 ```bash
-ga4-setup list-accounts
+python -m src.cli export --property-id 123456789 --output config/my-ga4.yaml --credentials credentials.json
 ```
 
-### 3. プロパティ・ストリーム・キーイベントを作成
+### ③ 設定の変更差分をプレビュー (`plan`)
+
+**Google API に接続して差分確認する場合**（サービスアカウントキーが必要）:
+```bash
+python -m src.cli plan --config config/ga4-config.example.yaml --credentials credentials.json
+```
+
+**キーなしでローカル検証・シミュレーションする場合 (`--offline`)**:
+```bash
+python -m src.cli plan --config config/ga4-config.example.yaml --offline
+```
+※ `--offline` を指定すると、Google API への通信を行わずにローカル定義の構文チェック、GA4 上限枠（クォータ）のシミュレーション、新規作成プランの可視化が可能です。
+
+### ④ 変更を安全に適用 (`apply`)
 
 ```bash
-ga4-setup setup \
-  --account-id YOUR_ACCOUNT_ID \
-  --name "マイサイト" \
-  --url "https://example.com"
+python -m src.cli apply --config config/ga4-config.example.yaml --credentials credentials.json
 ```
-
-実行すると:
-- GA4プロパティが作成されます
-- WEBデータストリームが作成されます
-- 標準キーイベント（form_submit, file_download）が設定されます
-- **property_idが `config.yaml` に自動保存されます**
-
-## 📁 ファイル構成
-
-```
-automation/
-├── src/
-│   └── ga4_automation/
-│       ├── __init__.py
-│       ├── cli.py           # CLIエントリーポイント
-│       ├── client.py        # GA4 Admin APIクライアント
-│       ├── config.py        # YAML設定管理（property_id永続化）
-│       ├── errors.py        # エラー分類（NotFound vs 他）
-│       └── quota.py         # クォータチェック（check_quotas import対応）
-├── tests/
-│   ├── test_client.py       # WEBストリーム限定テスト
-│   ├── test_config.py       # property_id永続化テスト
-│   ├── test_errors.py       # エラー分類テスト
-│   └── test_quota.py        # check_quotas importテスト
-├── docs/
-│   └── ADR-001-web-only.md  # WEBストリーム限定の設計判断
-├── examples/
-│   └── config.example.yaml  # 設定ファイル例
-├── pyproject.toml
-├── requirements.txt
-└── README.md                # 本書
-```
-
-## 🧪 テスト実行
-
+CI/CD 等で対話プロンプトをスキップしたい場合は `--auto-approve` を付与します：
 ```bash
-cd automation
-pytest
+python -m src.cli apply --config config/ga4-config.example.yaml --credentials credentials.json --auto-approve
 ```
 
-カバレッジ付き:
+---
 
-```bash
-pytest --cov=ga4_automation --cov-report=html
-```
-
-## 🔧 設定ファイル
-
-`config.yaml` の例は `examples/config.example.yaml` を参照してください。
-
-プロパティ作成後、`property_id` が自動的に保存されます:
+## 📝 設定ファイル例 (`config/ga4-config.example.yaml`)
 
 ```yaml
-property_id: "123456789"
-property_name: "properties/123456789"
+version: "1.0"
+
+property:
+  property_id: "properties/123456789"
+  display_name: "My Awesome Web App (Production)"
+  time_zone: "Asia/Tokyo"
+  currency_code: "JPY"
+  industry_category: "TECHNOLOGY"
+
+data_streams:
+  - name: "Web Production Stream"
+    type: "WEB"
+    default_uri: "https://example.com"
+
+custom_dimensions:
+  - parameter_name: "content_category"
+    display_name: "Content Category"
+    description: "Category of the viewed content"
+    scope: "EVENT"
+
+  - parameter_name: "user_membership_tier"
+    display_name: "Membership Tier"
+    description: "User subscription tier"
+    scope: "USER"
+
+custom_metrics:
+  - parameter_name: "scroll_depth_percent"
+    display_name: "Scroll Depth Percentage"
+    description: "Deepest scroll percentage reached"
+    measurement_unit: "STANDARD"
+    scope: "EVENT"
 ```
 
-## 🚨 重要な制約
+---
 
-### WEBストリームのみサポート
+## 🧪 テストの実行
 
-このCLIは **WEBデータストリーム** のみ対応しています。iOS/Androidストリーム作成を試みると `NotImplementedError` が発生します。
+Windows 環境では、アクティブな Python インタプリタ経由で実行します：
 
-詳細は [ADR-001](docs/ADR-001-web-only.md) を参照してください。
-
-### 認証情報の管理
-
-`credentials.json` や `token.json` は機密情報です。必ず `.gitignore` に追加してください（既に設定済み）。
-
-## 📚 関連ドキュメント
-
-- [ADR-001: WEBストリーム限定の設計判断](docs/ADR-001-web-only.md)
-- [親プロジェクトのREADME](../README.md)
-
-## 🔗 フロントエンドとの連携
-
-このCLIはフロントエンド（index.html / app.js）と同じGA4プロパティを操作します。
-
-- **フロントエンド**: ブラウザから直接GA4 Data APIでレポート取得
-- **CLI**: サーバーサイドまたはローカルでプロパティ・ストリーム作成を自動化
-
-## 📄 ライセンス
-
-MIT License（親プロジェクトと同じ）
+```bash
+python -m pytest -v
+```

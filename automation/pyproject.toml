@@ -3,36 +3,25 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ga4-automation"
+name = "ga4-setup-automation"
 version = "0.1.0"
-description = "GA4自動セットアップCLI - プロパティ・ストリーム・キーイベントの作成を自動化"
+description = "Tracking-as-Code CLI for Google Analytics 4 (GA4) configuration automation"
 readme = "README.md"
-requires-python = ">=3.9"
-license = {text = "MIT"}
-authors = [
-    {name = "nyattoh"}
-]
+requires-python = ">=3.10"
 dependencies = [
     "google-analytics-admin>=0.22.0",
-    "google-auth>=2.0.0",
-    "google-auth-oauthlib>=1.0.0",
+    "google-auth>=2.20.0",
+    "pydantic>=2.5.0",
     "pyyaml>=6.0",
+    "click>=8.1.0",
+    "rich>=13.0.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "pytest>=7.4.0",
+    "pytest-mock>=3.12.0"
 ]
 
 [project.scripts]
-ga4-setup = "ga4_automation.cli:main"
-
-[tool.setuptools.packages.find]
-where = ["src"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+ga4-sync = "src.cli:main"

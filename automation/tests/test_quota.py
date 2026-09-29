@@ -1,40 +1,46 @@
-"""クォータチェックテスト - check_quotas import対応確認"""
-import pytest
-from ga4_automation.quota import QuotaChecker, check_quotas
+from src.quota import check_quotas
 
 
-def test_quota_checker_basic():
-    """基本的なクォータチェック"""
-    checker = QuotaChecker(calls_per_day=100)
-    
-    assert checker.check() is True
-    
-    for _ in range(50):
-        checker.record_call()
-    
-    stats = checker.get_stats()
-    assert stats['calls_made'] == 50
-    assert stats['calls_remaining'] == 50
+def test_quota_within_limits():
+    current = {
+        "event_dimensions": 10,
+        "user_dimensions": 5,
+        "item_dimensions": 2,
+        "custom_metrics": 5,
+    }
+    to_add = {
+        "event_dimensions": 5,
+        "user_dimensions": 2,
+        "item_dimensions": 1,
+        "custom_metrics": 3,
+    }
+
+    report = check_quotas(current, to_add, is_ga360=False)
+    assert report.is_valid is True
+    assert len(report.errors) == 0
+    assert len(report.warnings) == 0
 
 
-def test_quota_checker_exceeds():
-    """クォータ超過時の動作"""
-    checker = QuotaChecker(calls_per_day=10)
-    
-    for _ in range(10):
-        assert checker.check() is True
-        checker.record_call()
-    
-    assert checker.check() is False
+def test_quota_warning_at_80_percent():
+    current = {"event_dimensions": 38}  # 38 + 2 = 40 (40/50 = 80%)
+    to_add = {"event_dimensions": 2}
+
+    report = check_quotas(current, to_add, is_ga360=False)
+    assert report.is_valid is True
+    assert len(report.warnings) == 1
+    assert "reaching 40/50" in report.warnings[0]
 
 
-def test_check_quotas_import():
-    """
-    check_quotas がモジュールレベルでimport可能
-    
-    これは重要なバグフィックス: 以前は import エラーが発生していた
-    """
-    assert check_quotas is not None
-    assert isinstance(check_quotas, QuotaChecker)
-    assert hasattr(check_quotas, 'check')
-    assert hasattr(check_quotas, 'record_call')
+def test_quota_exceeded():
+    current = {"user_dimensions": 24}
+    to_add = {"user_dimensions": 3}  # Total 27 > 25 limit for standard
+
+    report = check_quotas(current, to_add, is_ga360=False)
+    assert report.is_valid is False
+    assert len(report.errors) == 1
+    assert "exceeds GA4 Standard limit of 25" in report.errors[0]
+
+    # Under GA360 (limit 100), 27 should be valid
+    report_360 = check_quotas(current, to_add, is_ga360=True)
+    assert report_360.is_valid is True
+    assert len(report_360.errors) == 0
