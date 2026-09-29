@@ -1467,11 +1467,29 @@ function generateAIAdvice(queryType) {
   const mob = devices.find(x => x.key === "mobile")?.sessions || 0;
   const mobPct = totDev ? Math.round((mob / totDev) * 100) : 0;
 
-  const topChannel = d.channel?.[0]?.label || "検索エンジン";
-  const topLoc = d.location?.[0]?.label || "東京都";
+  const hasSessions = cur.sessions > 0 || cur.activeUsers > 0;
+  const topChannel = d.channel && d.channel.length > 0 ? d.channel[0].label : null;
+  const topLoc = d.location && d.location.length > 0 ? d.location[0].label : null;
 
   resBox.style.display = "block";
   resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  // データがまだ全くない（0件）の場合の案内
+  if (!hasSessions) {
+    resTitle.innerHTML = `
+      <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      アクセスデータがまだありません（0件）
+    `;
+    resContent.innerHTML = `
+      <p>この期間のアクセスデータがまだ計測されていないため、具体的なアドバイスを生成できません。</p>
+      <ul>
+        <li><strong>1. 計測タグの設置確認:</strong> Webサイトの <code>&lt;head&gt;</code> 内に Google タグ（gtag.js）が貼り付けられているかご確認ください。</li>
+        <li><strong>2. テストアクセスの実施:</strong> ご自身のスマホやPCでサイトを開いてみてください。数時間〜翌日には GA4 側にデータが反映されます。</li>
+        <li><strong>3. 期間の変更:</strong> 過去にアクセスがあった場合は、上部の期間ボタン（90日間など）に切り替えてお試しください。</li>
+      </ul>
+    `;
+    return;
+  }
 
   if (queryType === "priority") {
     resTitle.innerHTML = `
@@ -1482,7 +1500,7 @@ function generateAIAdvice(queryType) {
       <ul>
         <li><strong>1. スマホ表示の最適化（スマホ利用率 ${mobPct}%）:</strong> 訪問者の過半数がスマホです。スマートフォンでの読み込み速度向上と、ファーストビュー（画面を開いて最初に見える範囲）で価値が3秒で伝わるよう整えましょう。</li>
         <li><strong>2. 見ている割合の改善（現在 ${engRate}%）:</strong> ${engRate < 50 ? "直帰率が高めです。記事やページの末尾に「次に読んでほしい関連記事」や「おすすめサービス」への誘導ボタンを配置し、回遊率を高めましょう。" : "滞在率は ${engRate}% と良好です！各ページの目立つ位置にお問い合わせやLINE等の導線を配置してアクションを促しましょう。"}</li>
-        <li><strong>3. 最大の流入元「${topChannel}」の強化:</strong> 最も人を集めている流入経路に合わせたコンテンツの拡充やキーワード対策を行い、強みをさらに伸ばしましょう。</li>
+        <li><strong>3. 最大の流入元対策:</strong> ${topChannel ? `最も人を集めている流入経路「${topChannel}」に合わせたコンテンツの拡充やキーワード対策を行い、強みをさらに伸ばしましょう。` : "流入経路データがまだ少数です。SNSでの告知や検索対策でまずは入り口を増やしましょう。"}</li>
       </ul>
     `;
   } else if (queryType === "mobile") {
@@ -1516,13 +1534,20 @@ function generateAIAdvice(queryType) {
       <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
       地域傾向から見た集客・プロモーションのヒント
     `;
-    resContent.innerHTML = `
-      <p>最も訪問者が多い地域は <strong>「${topLoc}」</strong> です。</p>
-      <ul>
-        <li><strong>地域特化のメッセージング:</strong> トップページや見出しに「${topLoc}エリア対応」「${topLoc}のお客様へ」といった地域名を記載すると、共感度と成約率が跳ね上がります。</li>
-        <li><strong>Google 広告の地域ターゲティング:</strong> 予算が限られている場合、訪問実績の多い「${topLoc}」や上位都市に限定してWeb広告を配信することで、費用対効果（ROI）を最大化できます。</li>
-      </ul>
-    `;
+    if (!topLoc) {
+      resContent.innerHTML = `
+        <p>地域別のアクセスデータはまだ十分に集まっていません（0件または少数）。</p>
+        <p>アクセスが増えてくると、どの都道府県・地域からの閲覧が多いかが集計され、地域ごとの広告配信や地域特化のメッセージ設計に活用できます。</p>
+      `;
+    } else {
+      resContent.innerHTML = `
+        <p>最も訪問者が多い地域は <strong>「${topLoc}」</strong> です。</p>
+        <ul>
+          <li><strong>地域特化のメッセージング:</strong> トップページや見出しに「${topLoc}エリア対応」「${topLoc}のお客様へ」といった地域名を記載すると、共感度と成約率が跳ね上がります。</li>
+          <li><strong>Google 広告の地域ターゲティング:</strong> 予算が限られている場合、訪問実績の多い「${topLoc}」や上位都市に限定してWeb広告を配信することで、費用対効果（ROI）を最大化できます。</li>
+        </ul>
+      `;
+    }
   }
 }
 
