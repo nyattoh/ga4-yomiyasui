@@ -492,3 +492,249 @@ tbody tr:hover {
 .toast.show {
   display: block;
 }
+
+/* ==========================================================================
+   タブナビゲーション
+   ========================================================================== */
+.app-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--border);
+  padding-bottom: 2px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -4px;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+  color: var(--primary);
+  background: var(--border-light);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: #ffffff;
+}
+
+/* ==========================================================================
+   初期設定ウィザード スタイル
+   ========================================================================== */
+.wizard-step {
+  position: relative;
+  padding: 20px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.step-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+
+.step-title {
+  font-size: 1.05rem;
+  margin: 0 0 12px;
+  font-weight: 700;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ラジオカード（サイト種類） */
+.radio-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+@media (min-width: 640px) {
+  .radio-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.radio-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.radio-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.radio-card input[type="radio"]:checked ~ .radio-card-content .radio-title {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.radio-card:has(input[type="radio"]:checked) {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.radio-card-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.radio-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* チェックボックスカード（成果・ゴール） */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.checkbox-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.checkbox-card:hover {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+}
+
+.checkbox-card:has(input[type="checkbox"]:checked) {
+  border-color: var(--primary);
+  background: #f0f7ff;
+  font-weight: 600;
+}
+
+/* ウィザード結果エリア */
+.wizard-result {
+  background: #ffffff;
+  border: 2px solid #10b981;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.result-header h3 {
+  margin: 0;
+  color: #065f46;
+  font-size: 1.2rem;
+}
+
+.code-container {
+  margin-top: 16px;
+  background: #0f172a;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #1e293b;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.code-container pre {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+}
+
+.code-container code {
+  color: #38bdf8;
+  font-family: Consolas, Monaco, "Andale Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ガイドボックス */
+.guide-box {
+  margin-top: 20px;
+  background: var(--bg-main);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+}
+
+.guide-box h4 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+}

@@ -56,6 +56,35 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function setupEventListeners() {
+  // タブ切り替え
+  const tabDashboard = document.getElementById("tabDashboard");
+  const tabWizard = document.getElementById("tabWizard");
+  const dashboardSection = document.getElementById("dashboardSection");
+  const wizardSection = document.getElementById("wizardSection");
+  const controlBar = document.getElementById("controlBar");
+
+  tabDashboard.addEventListener("click", () => {
+    tabDashboard.classList.add("active");
+    tabWizard.classList.remove("active");
+    dashboardSection.style.display = "block";
+    wizardSection.style.display = "none";
+    controlBar.style.display = "flex";
+  });
+
+  tabWizard.addEventListener("click", () => {
+    tabWizard.classList.add("active");
+    tabDashboard.classList.remove("active");
+    dashboardSection.style.display = "none";
+    wizardSection.style.display = "block";
+    controlBar.style.display = "none";
+  });
+
+  // ウィザード: タグ生成ボタン
+  document.getElementById("btnGenerateTag").addEventListener("click", handleGenerateTag);
+
+  // ウィザード: コピーボタン
+  document.getElementById("btnCopyTag").addEventListener("click", handleCopyTag);
+
   // 期間切り替え
   document.querySelectorAll(".btn-period").forEach(btn => {
     btn.addEventListener("click", e => {
@@ -769,3 +798,125 @@ function showToast(msg) {
     toast.classList.remove("show");
   }, 3200);
 }
+
+// ============================================================================
+// GA4 かんたん初期設定ウィザード (Tag Generator)
+// ============================================================================
+function handleGenerateTag() {
+  const siteName = document.getElementById("wizardSiteName").value.trim() || "マイサイト";
+  const siteUrl = document.getElementById("wizardSiteUrl").value.trim() || "https://example.com";
+  const siteType = document.querySelector('input[name="wizardSiteType"]:checked')?.value || "corporate";
+
+  const goalInquiry = document.getElementById("goalInquiry").checked;
+  const goalDocument = document.getElementById("goalDocument").checked;
+  const goalTel = document.getElementById("goalTel").checked;
+  const goalMember = document.getElementById("goalMember").checked;
+  const goalPurchase = document.getElementById("goalPurchase").checked;
+
+  // 測定IDのプレースホルダー（ログイン中でプロパティ選択済みの場合は反映）
+  let measurementId = "G-XXXXXXXXXX";
+  if (state.mode === "live" && state.selectedPropertyId && state.selectedPropertyId !== "demo") {
+    measurementId = `G-PROP${state.selectedPropertyId.slice(-6)}`;
+  }
+
+  // 自動計測イベント設定
+  const events = [];
+  if (goalInquiry) {
+    events.push(`    // ✉️ お問い合わせ完了（サンクスページ等）の計測
+    if (window.location.pathname.includes('thanks') || window.location.pathname.includes('complete')) {
+      gtag('event', 'generate_lead', {
+        event_category: 'contact',
+        event_label: '${siteName} お問い合わせ完了'
+      });
+    }`);
+  }
+  if (goalDocument) {
+    events.push(`    // 📄 PDF等の資料ダウンロード自動検知
+    document.addEventListener('click', function(e) {
+      const a = e.target.closest('a');
+      if (a && a.href && a.href.match(/\\.(pdf|xlsx?|docx?)$/i)) {
+        gtag('event', 'file_download', {
+          file_name: a.href.split('/').pop(),
+          link_url: a.href
+        });
+      }
+    });`);
+  }
+  if (goalTel) {
+    events.push(`    // 📞 電話タップの自動検知
+    document.addEventListener('click', function(e) {
+      const a = e.target.closest('a');
+      if (a && a.href && a.href.startsWith('tel:')) {
+        gtag('event', 'click', {
+          event_category: 'tel',
+          event_label: a.href
+        });
+      }
+    });`);
+  }
+  if (goalMember) {
+    events.push(`    // 👤 会員登録完了の検知
+    if (window.location.pathname.includes('register/success') || window.location.pathname.includes('signup-complete')) {
+      gtag('event', 'sign_up', {
+        method: 'email'
+      });
+    }`);
+  }
+  if (goalPurchase) {
+    events.push(`    // 💳 購入完了の検知
+    if (window.location.pathname.includes('order/complete') || window.location.pathname.includes('checkout/thankyou')) {
+      gtag('event', 'purchase', {
+        transaction_id: 'ORDER_' + Date.now(),
+        currency: 'JPY'
+      });
+    }`);
+  }
+
+  const customEventsCode = events.length > 0 
+    ? `\n    // ── 自動成果（キーイベント）トラッキング ──\n${events.join("\n\n")}\n` 
+    : "";
+
+  const snippet = `<!-- Google tag (gtag.js) - ${siteName} 用 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${measurementId}"><\/script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // 基本PV計測
+  gtag('config', '${measurementId}');
+
+  // ページ読み込み完了時に成果トラッキングを初期化
+  window.addEventListener('DOMContentLoaded', function() {${customEventsCode}  });
+<\/script>`;
+
+  document.getElementById("generatedTagCode").textContent = snippet;
+  const resultArea = document.getElementById("wizardResult");
+  resultArea.style.display = "block";
+  resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  showToast("計測タグを生成しました！コピーしてサイトに貼り付けてください");
+}
+
+function handleCopyTag() {
+  const code = document.getElementById("generatedTagCode").textContent;
+  if (!code) return;
+
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById("btnCopyTag");
+    const originalText = btn.textContent;
+    btn.textContent = "✅ コピー完了！";
+    btn.style.backgroundColor = "#10b981";
+    btn.style.color = "#ffffff";
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.style.backgroundColor = "";
+      btn.style.color = "";
+    }, 2500);
+    showToast("クリップボードにコピーしました！");
+  }).catch(err => {
+    console.error("Copy failed:", err);
+    showToast("コピーに失敗しました。手動で選択してコピーしてください");
+  });
+}
+

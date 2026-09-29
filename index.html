@@ -28,8 +28,14 @@
         </div>
       </div>
       
+      <!-- タブナビゲーション -->
+      <nav class="app-tabs">
+        <button id="tabDashboard" class="tab-btn active">📊 レポートを見る（よみやすい）</button>
+        <button id="tabWizard" class="tab-btn">🚀 GA4初期設定ウィザード（タグ発行）</button>
+      </nav>
+
       <!-- コントロールバー（プロパティ・期間・更新） -->
-      <div class="control-bar">
+      <div id="controlBar" class="control-bar">
         <div class="property-selector">
           <label for="propertySelect" style="font-size: 0.85rem; font-weight: 600; white-space: nowrap;">サイト:</label>
           <select id="propertySelect">
@@ -48,6 +54,135 @@
     </header>
 
     <main id="mainContent">
+      <!-- ========================================== -->
+      <!-- かんたん初期設定ウィザード セクション -->
+      <!-- ========================================== -->
+      <section id="wizardSection" class="card-section" style="display: none;">
+        <div class="section-header">
+          <h2>🚀 GA4 かんたん初期設定ウィザード</h2>
+          <p class="hint-text">難しい用語や設定ファイルは不要です。質問にポチポチ答えるだけで、サイトに貼る計測タグを作成します。</p>
+        </div>
+
+        <form id="wizardForm" onsubmit="return false;" style="margin-top: 20px;">
+          <!-- ステップ 1 -->
+          <div class="wizard-step">
+            <div class="step-badge">ステップ 1</div>
+            <h3 class="step-title">サイトの基本情報を入力してください</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="wizardSiteName">サイト名・会社名</label>
+                <input type="text" id="wizardSiteName" placeholder="例: 株式会社サンプル 公式サイト" required />
+              </div>
+              <div class="form-group">
+                <label for="wizardSiteUrl">サイトのURL</label>
+                <input type="url" id="wizardSiteUrl" placeholder="https://example.com" required />
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 12px;">
+              <label>サイトの種類</label>
+              <div class="radio-cards">
+                <label class="radio-card">
+                  <input type="radio" name="wizardSiteType" value="corporate" checked />
+                  <div class="radio-card-content">
+                    <span class="radio-title">🏢 会社のホームページ</span>
+                    <span class="radio-desc">会社案内、問い合わせ獲得</span>
+                  </div>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="wizardSiteType" value="blog" />
+                  <div class="radio-card-content">
+                    <span class="radio-title">📝 ブログ・オウンドメディア</span>
+                    <span class="radio-desc">記事閲覧、PV・読者獲得</span>
+                  </div>
+                </label>
+                <label class="radio-card">
+                  <input type="radio" name="wizardSiteType" value="ec" />
+                  <div class="radio-card-content">
+                    <span class="radio-title">🛍️ ネットショップ・EC</span>
+                    <span class="radio-desc">商品購入、カート投入</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- ステップ 2 -->
+          <div class="wizard-step" style="margin-top: 28px;">
+            <div class="step-badge">ステップ 2</div>
+            <h3 class="step-title">測りたい成果（ゴール）を選んでください</h3>
+            <p class="hint-text" style="margin-top: -4px; margin-bottom: 12px;">あてはまるものにチェックを入れるだけで、おすすめの計測設定を組み込みます。</p>
+            <div class="checkbox-grid">
+              <label class="checkbox-card">
+                <input type="checkbox" id="goalInquiry" checked />
+                <span>✉️ お問い合わせ完了（サンクスページ到達・送信）</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" id="goalDocument" checked />
+                <span>📄 資料請求・カタログPDFのダウンロード</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" id="goalTel" />
+                <span>📞 電話番号リンク（tel:）のタップ</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" id="goalMember" />
+                <span>👤 会員登録・メルマガ登録</span>
+              </label>
+              <label class="checkbox-card">
+                <input type="checkbox" id="goalPurchase" />
+                <span>💳 商品の購入完了（サンクスページ）</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 送信ボタン -->
+          <div style="margin-top: 28px; text-align: center;">
+            <button id="btnGenerateTag" class="btn btn-primary" style="padding: 12px 32px; font-size: 1.05rem; font-weight: 600;">
+              ✨ GA4計測タグを生成する
+            </button>
+          </div>
+        </form>
+
+        <!-- ステップ 3: タグ出力結果エリア -->
+        <div id="wizardResult" class="wizard-result" style="display: none; margin-top: 32px;">
+          <div class="result-header">
+            <h3>🎉 計測タグが完成しました！</h3>
+            <p class="hint-text">以下のコードをコピーして、あなたのWebサイトに貼り付けてください。</p>
+          </div>
+
+          <div class="code-container">
+            <div class="code-header">
+              <span>Google タグ (gtag.js)</span>
+              <button id="btnCopyTag" class="btn btn-sm">📋 タグをコピーする</button>
+            </div>
+            <pre><code id="generatedTagCode"></code></pre>
+          </div>
+
+          <!-- 貼り付け場所ガイド -->
+          <div class="guide-box">
+            <h4>💡 どこに貼ればいいの？（簡単ガイド）</h4>
+            <ul class="guide-list">
+              <li>
+                <strong>HTML で作られているサイト:</strong><br />
+                サイトの全ページの <code>&lt;head&gt;</code> タグの直後に貼り付けてください。
+              </li>
+              <li>
+                <strong>WordPress の場合:</strong><br />
+                お使いのテーマの「アクセス解析設定」または「Site Kit by Google」「Header and Footer Scripts」等のプラグインの Head 欄に貼り付けます。
+              </li>
+              <li>
+                <strong>STUDIO / Wix / Shopify などのノーコードツール:</strong><br />
+                管理画面の設定にある「外部アクセス解析」「カスタムコード挿入（head）」に測定ID（<code>G-XXXXXXX</code>）またはコードを貼り付けます。
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- レポート表示（よみやすい）セクション -->
+      <!-- ========================================== -->
+      <div id="dashboardSection">
       <!-- ブロック 1: 人は来ているか -->
       <section class="card-section">
         <div class="section-header">
@@ -198,6 +333,7 @@
         </div>
         <p class="hint-text">💡 <strong>見方</strong>：iPhone/iPadは「iOS」、Macは「Mac」に平易化して表示しています。</p>
       </section>
+      </div> <!-- /#dashboardSection -->
     </main>
 
     <!-- フッター -->
