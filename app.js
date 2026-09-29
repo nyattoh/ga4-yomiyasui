@@ -35,13 +35,15 @@ const state = {
     overview: null,
     channel: null,
     device: null,
-    os: null
+    os: null,
+    location: null
   },
   charts: {
     channel: null,
     device: null,
     osSessions: null,
-    osUsers: null
+    osUsers: null,
+    location: null
   }
 };
 
@@ -54,6 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   loadDemoData();
   initGIS();
+  setupAIAdvisor();
 });
 
 function setupEventListeners() {
@@ -427,12 +430,13 @@ async function fetchLiveData() {
   };
 
   try {
-    const [overviewCur, overviewPrev, channelRes, deviceRes, osRes] = await Promise.all([
+    const [overviewCur, overviewPrev, channelRes, deviceRes, osRes, locationRes] = await Promise.all([
       runReport(propId, dateConf.current, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
       runReport(propId, dateConf.previous, [], ["sessions", "activeUsers", "engagementRate", "keyEvents"], headers),
       runReport(propId, dateConf.current, ["sessionDefaultChannelGroup"], ["sessions", "activeUsers"], headers),
       runReport(propId, dateConf.current, ["deviceCategory"], ["sessions", "activeUsers"], headers),
-      runReport(propId, dateConf.current, ["operatingSystem"], ["sessions", "activeUsers"], headers)
+      runReport(propId, dateConf.current, ["operatingSystem"], ["sessions", "activeUsers"], headers),
+      runReport(propId, dateConf.current, ["city", "country"], ["sessions", "activeUsers"], headers)
     ]);
 
     // 整形
@@ -443,7 +447,8 @@ async function fetchLiveData() {
       },
       channel: parseRows(channelRes.rows, "sessionDefaultChannelGroup"),
       device: parseRows(deviceRes.rows, "deviceCategory"),
-      os: parseRows(osRes.rows, "operatingSystem")
+      os: parseRows(osRes.rows, "operatingSystem"),
+      location: parseLocationRows(locationRes.rows)
     };
 
     // キャッシュ保存
@@ -502,6 +507,18 @@ function parseRows(rows, dimKey) {
   });
 }
 
+function parseLocationRows(rows) {
+  if (!rows) return [];
+  return rows.map(r => {
+    const city = r.dimensionValues?.[0]?.value || "その他";
+    const country = r.dimensionValues?.[1]?.value || "日本";
+    const label = city !== "(not set)" && city !== "その他" ? city : country;
+    const sessions = parseInt(r.metricValues?.[0]?.value || "0", 10);
+    const users = parseInt(r.metricValues?.[1]?.value || "0", 10);
+    return { key: city, label, country, sessions, users };
+  });
+}
+
 // ============================================================================
 // デモデータ読み込み
 // ============================================================================
@@ -534,6 +551,12 @@ async function loadDemoData() {
         { key: "Android", label: "Android", sessions: 4700, users: 2800 },
         { key: "Windows", label: "Windows", sessions: 3600, users: 1600 },
         { key: "Macintosh", label: "Mac", sessions: 1400, users: 700 }
+      ],
+      location: [
+        { key: "Tokyo", label: "東京都", country: "日本", sessions: 7600, users: 4100 },
+        { key: "Osaka", label: "大阪府", country: "日本", sessions: 2900, users: 1650 },
+        { key: "Aichi", label: "愛知県", country: "日本", sessions: 1800, users: 1020 },
+        { key: "United States", label: "アメリカ（海外）", country: "アメリカ", sessions: 650, users: 380 }
       ]
     };
     renderAll();
@@ -559,6 +582,7 @@ function renderAll() {
   renderKeyEvents(state.data.overview?.current);
   renderDevices(state.data.device);
   renderOS(state.data.os);
+  renderLocation(state.data.location);
 }
 
 // ユーティリティ
@@ -793,8 +817,8 @@ function renderOS(osRows) {
       datasets: [{
         label: "回数",
         data: sorted.map(r => r.sessions),
-        backgroundColor: "#2f6f4e",
-        borderRadius: 4
+        backgroundColor: "#10b981", // トイグリーン
+        borderRadius: 6
       }]
     },
     options: {
@@ -818,8 +842,8 @@ function renderOS(osRows) {
       datasets: [{
         label: "人数",
         data: sorted.map(r => r.users),
-        backgroundColor: "#3d5a80",
-        borderRadius: 4
+        backgroundColor: "#8b5cf6", // トイパープル
+        borderRadius: 6
       }]
     },
     options: {
@@ -828,6 +852,60 @@ function renderOS(osRows) {
       plugins: {
         legend: { display: false },
         title: { display: true, text: "OS別の人数" }
+      },
+      scales: {
+        x: { ticks: { callback: v => fmt(v) } }
+      }
+    }
+  });
+}
+
+// 7. どの国・地域からか
+function renderLocation(locationRows) {
+  if (!locationRows || locationRows.length === 0) return;
+  const sorted = [...locationRows].sort((a, b) => b.sessions - a.sessions).slice(0, 7);
+  const totalS = locationRows.reduce((a, r) => a + r.sessions, 0);
+  const totalU = locationRows.reduce((a, r) => a + r.users, 0);
+
+  // 結論文
+  const top1 = sorted[0];
+  const topPct = pct(top1.sessions, totalS);
+  document.getElementById("locationVerdict").textContent =
+    `アクセスが最も多い地域は「${top1.label}」で、全体の ${topPct}（${fmt(top1.sessions)}回）です。`;
+
+  // 表
+  const tbody = document.getElementById("locationTable");
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td>${r.label}</td>
+      <td>${r.country}</td>
+      <td class="num">${fmt(r.sessions)}</td>
+      <td class="num">${pct(r.sessions, totalS)}</td>
+      <td class="num">${fmt(r.users)}</td>
+      <td class="num">${pct(r.users, totalU)}</td>
+    </tr>
+  `).join("");
+
+  // グラフ (トイイエロー/オレンジ)
+  destroyChart("location");
+  const ctx = document.getElementById("locationChart").getContext("2d");
+  state.charts.location = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: sorted.map(r => r.label),
+      datasets: [{
+        label: "回数",
+        data: sorted.map(r => r.sessions),
+        backgroundColor: "#f59e0b",
+        borderRadius: 6
+      }]
+    },
+    options: {
+      indexAxis: "y",
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: "地域・都市別の回数（上位）" }
       },
       scales: {
         x: { ticks: { callback: v => fmt(v) } }
@@ -1094,4 +1172,93 @@ function handleCopyTag() {
     showToast("コピーに失敗しました。手動で選択してコピーしてください");
   });
 }
+
+// ============================================================================
+// AI アクセス解析アドバイザー (AI Consultant)
+// ============================================================================
+function setupAIAdvisor() {
+  document.querySelectorAll(".ai-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const q = btn.dataset.query;
+      generateAIAdvice(q);
+    });
+  });
+}
+
+function generateAIAdvice(queryType) {
+  const d = state.data;
+  if (!d) return;
+
+  const resBox = document.getElementById("aiResponseBox");
+  const resTitle = document.getElementById("aiResponseTitle");
+  const resContent = document.getElementById("aiResponseContent");
+
+  const cur = d.overview?.current || { sessions: 0, activeUsers: 0, engagementRate: 0, keyEvents: 0 };
+  const prev = d.overview?.previous || cur;
+  const engRate = Math.round((cur.engagementRate || 0) * 100);
+
+  const devices = d.device || [];
+  const totDev = devices.reduce((a, r) => a + r.sessions, 0);
+  const mob = devices.find(x => x.key === "mobile")?.sessions || 0;
+  const mobPct = totDev ? Math.round((mob / totDev) * 100) : 0;
+
+  const topChannel = d.channel?.[0]?.label || "検索エンジン";
+  const topLoc = d.location?.[0]?.label || "東京都";
+
+  resBox.style.display = "block";
+  resBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
+  if (queryType === "priority") {
+    resTitle.innerHTML = `
+      <svg class="svg-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+      今週の最優先改善アクション 3選
+    `;
+    resContent.innerHTML = `
+      <ul>
+        <li><strong>1. スマホ表示の最適化（スマホ利用率 ${mobPct}%）:</strong> 訪問者の過半数がスマホです。スマートフォンでの読み込み速度向上と、ファーストビュー（画面を開いて最初に見える範囲）で価値が3秒で伝わるよう整えましょう。</li>
+        <li><strong>2. 見ている割合の改善（現在 ${engRate}%）:</strong> ${engRate < 50 ? "直帰率が高めです。記事やページの末尾に「次に読んでほしい関連記事」や「おすすめサービス」への誘導ボタンを配置し、回遊率を高めましょう。" : "滞在率は ${engRate}% と良好です！各ページの目立つ位置にお問い合わせやLINE等の導線を配置してアクションを促しましょう。"}</li>
+        <li><strong>3. 最大の流入元「${topChannel}」の強化:</strong> 最も人を集めている流入経路に合わせたコンテンツの拡充やキーワード対策を行い、強みをさらに伸ばしましょう。</li>
+      </ul>
+    `;
+  } else if (queryType === "mobile") {
+    resTitle.innerHTML = `
+      <svg class="svg-icon" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+      スマホ訪問者の離脱を防ぐ処方箋
+    `;
+    resContent.innerHTML = `
+      <p>現在のアクセスでは、<strong>スマホが全体の ${mobPct}%</strong> を占めています。</p>
+      <ul>
+        <li><strong>タップしやすいボタンサイズ:</strong> 重要なリンクや「お問い合わせ」ボタンの高さを 44px 以上確保し、親指で楽に押せるようにしましょう。</li>
+        <li><strong>画面下部の追従バー（Sticky Footer）:</strong> スマホ画面の最下部に「電話する」「WEB予約」「LINE相談」などの固定ボタンを配置すると、成果率が平均1.3〜1.8倍に向上します。</li>
+        <li><strong>入力項目の極小化:</strong> スマホでの文字入力はユーザーの離脱原因第1位です。お問い合わせフォームの必須項目を必要最小限（3〜4項目）に絞り込みましょう。</li>
+      </ul>
+    `;
+  } else if (queryType === "conversion") {
+    resTitle.innerHTML = `
+      <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      お問い合わせ（成果）を増やす施策
+    `;
+    resContent.innerHTML = `
+      <p>現在のキーイベント達成数: <strong>${cur.keyEvents}回</strong></p>
+      <ul>
+        <li>${cur.keyEvents === 0 ? "<strong>まずは計測設定の確認:</strong> 成果が0件です。お問い合わせ完了ページ（サンクスページ）への到達がGA4側で「キーイベント」として登録されているか、または初期設定ウィザードの自動タグを導入してください。" : "<strong>成果獲得は順調です！</strong> さらなる拡大に向けて以下の施策を推奨します。"}</li>
+        <li><strong>アクションの心理的ハードルを下げる:</strong> 「今すぐ契約」だけでなく「まずは無料資料を見る」「3分でカンタン見積もり」など、気軽に申し込める入り口（マイクロコンバージョン）を用意しましょう。</li>
+        <li><strong>お客様の声・実績の掲載:</strong> フォームの直前に「利用者の声」や「安心の実績」を添えることで、送信直前の離脱を大きく減らせます。</li>
+      </ul>
+    `;
+  } else if (queryType === "location") {
+    resTitle.innerHTML = `
+      <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+      地域傾向から見た集客・プロモーションのヒント
+    `;
+    resContent.innerHTML = `
+      <p>最も訪問者が多い地域は <strong>「${topLoc}」</strong> です。</p>
+      <ul>
+        <li><strong>地域特化のメッセージング:</strong> トップページや見出しに「${topLoc}エリア対応」「${topLoc}のお客様へ」といった地域名を記載すると、共感度と成約率が跳ね上がります。</li>
+        <li><strong>Google 広告の地域ターゲティング:</strong> 予算が限られている場合、訪問実績の多い「${topLoc}」や上位都市に限定してWeb広告を配信することで、費用対効果（ROI）を最大化できます。</li>
+      </ul>
+    `;
+  }
+}
+
 

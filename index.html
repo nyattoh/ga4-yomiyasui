@@ -19,25 +19,45 @@
     <header class="header">
       <div class="header-top">
         <div class="title-group">
-          <h1>GA4 よみやすい</h1>
-          <span id="modeBadge" class="badge badge-demo">デモデータ（API未接続）</span>
+          <div class="brand-icon-box">
+            <svg class="svg-icon svg-icon-lg" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          </div>
+          <div>
+            <h1>GA4 よみやすい</h1>
+            <span id="modeBadge" class="badge badge-demo">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              デモデータ（API未接続）
+            </span>
+          </div>
         </div>
         <div class="header-actions">
-          <button id="btnSettings" class="btn btn-icon" title="設定" aria-label="設定">⚙ 設定</button>
-          <button id="btnAuth" class="btn btn-primary">Googleでログイン</button>
+          <button id="btnSettings" class="btn btn-icon" title="設定" aria-label="設定">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            設定
+          </button>
+          <button id="btnAuth" class="btn btn-primary">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+            Googleでログイン
+          </button>
         </div>
       </div>
       
       <!-- タブナビゲーション -->
       <nav class="app-tabs">
-        <button id="tabDashboard" class="tab-btn active">📊 レポートを見る（よみやすい）</button>
-        <button id="tabWizard" class="tab-btn">🚀 GA4初期設定ウィザード（タグ発行）</button>
+        <button id="tabDashboard" class="tab-btn active">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+          レポートを見る
+        </button>
+        <button id="tabWizard" class="tab-btn">
+          <svg class="svg-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+          初期設定ウィザード
+        </button>
       </nav>
 
       <!-- コントロールバー（プロパティ・期間・更新） -->
       <div id="controlBar" class="control-bar">
         <div class="property-selector">
-          <label for="propertySelect" style="font-size: 0.85rem; font-weight: 600; white-space: nowrap;">サイト:</label>
+          <label for="propertySelect" style="font-size: 0.85rem; font-weight: 700; white-space: nowrap;">サイト:</label>
           <select id="propertySelect">
             <option value="demo">デモサイト（サンプルデータ）</option>
           </select>
@@ -48,7 +68,9 @@
             <button class="btn-period active" data-period="28d">28日間（標準）</button>
             <button class="btn-period" data-period="90d">90日間</button>
           </div>
-          <button id="btnRefresh" class="btn btn-icon" title="最新データを再取得">🔄</button>
+          <button id="btnRefresh" class="btn btn-icon" title="最新データを再取得">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          </button>
         </div>
       </div>
     </header>
@@ -59,14 +81,22 @@
       <!-- ========================================== -->
       <section id="wizardSection" class="card-section" style="display: none;">
         <div class="section-header">
-          <h2>🚀 GA4 かんたん初期設定ウィザード</h2>
-          <p class="hint-text">難しい用語や設定ファイルは不要です。質問にポチポチ答えるだけで、サイトに貼る計測タグを作成します。</p>
+          <div class="section-title-wrap">
+            <div class="section-num-badge">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+            </div>
+            <h2>GA4 かんたん初期設定ウィザード</h2>
+          </div>
         </div>
+        <p class="hint-text" style="margin-top: 0;">難しい用語や設定ファイルは不要です。質問に答えてボタンを押すだけで、Google アナリティクスにプロパティとキーイベントを自動作成します。</p>
 
         <!-- Google アカウント連携状態バナー -->
-        <div id="wizardAuthBanner" style="margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md); background: #fef3c7; border: 1px solid #fde68a; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div id="wizardAuthBanner" style="margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md); background: var(--toy-yellow-light); border: 2px solid var(--toy-yellow-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
           <div>
-            <strong style="color: #92400e; font-size: 0.95rem;">⚠️ Google アカウント未ログイン</strong>
+            <strong style="color: #92400e; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+              Google アカウント未ログイン
+            </strong>
             <p style="margin: 2px 0 0; font-size: 0.825rem; color: #78350f;">ログインすると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが自動作成されます。</p>
           </div>
           <button id="btnWizardLogin" class="btn btn-primary" style="font-size: 0.85rem;">Googleでログイン</button>
@@ -77,9 +107,9 @@
           <div class="wizard-step">
             <div class="step-badge">ステップ 1</div>
             <h3 class="step-title">サイトの基本情報と作成先アカウント</h3>
-            <div id="wizardAccountGroup" class="form-group" style="display: none; margin-bottom: 16px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm);">
-              <label for="wizardAccountSelect" style="color: #1e40af; font-weight: 700;">作成先 Google アナリティクス アカウント</label>
-              <select id="wizardAccountSelect" style="width: 100%; padding: 8px 12px; border-radius: 4px; border: 1px solid #93c5fd; background: #fff; font-size: 0.9rem;">
+            <div id="wizardAccountGroup" class="form-group" style="display: none; margin-bottom: 16px; padding: 14px; background: var(--toy-blue-light); border: 2px solid var(--toy-blue-border); border-radius: var(--radius-sm);">
+              <label for="wizardAccountSelect" style="color: var(--toy-blue-hover); font-weight: 800;">作成先 Google アナリティクス アカウント</label>
+              <select id="wizardAccountSelect">
                 <option value="">アカウントを読み込み中...</option>
               </select>
             </div>
@@ -93,27 +123,36 @@
                 <input type="url" id="wizardSiteUrl" placeholder="https://example.com" required />
               </div>
             </div>
-            <div class="form-group" style="margin-top: 12px;">
+            <div class="form-group" style="margin-top: 14px;">
               <label>サイトの種類</label>
               <div class="radio-cards">
                 <label class="radio-card">
                   <input type="radio" name="wizardSiteType" value="corporate" checked />
                   <div class="radio-card-content">
-                    <span class="radio-title">🏢 会社のホームページ</span>
+                    <span class="radio-title">
+                      <svg class="svg-icon" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M8 10h.01M16 10h.01M12 10h.01M8 14h.01M16 14h.01M12 14h.01"/></svg>
+                      会社のホームページ
+                    </span>
                     <span class="radio-desc">会社案内、問い合わせ獲得</span>
                   </div>
                 </label>
                 <label class="radio-card">
                   <input type="radio" name="wizardSiteType" value="blog" />
                   <div class="radio-card-content">
-                    <span class="radio-title">📝 ブログ・オウンドメディア</span>
+                    <span class="radio-title">
+                      <svg class="svg-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></svg>
+                      ブログ・オウンドメディア
+                    </span>
                     <span class="radio-desc">記事閲覧、PV・読者獲得</span>
                   </div>
                 </label>
                 <label class="radio-card">
                   <input type="radio" name="wizardSiteType" value="ec" />
                   <div class="radio-card-content">
-                    <span class="radio-title">🛍️ ネットショップ・EC</span>
+                    <span class="radio-title">
+                      <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                      ネットショップ・EC
+                    </span>
                     <span class="radio-desc">商品購入、カート投入</span>
                   </div>
                 </label>
@@ -122,41 +161,57 @@
           </div>
 
           <!-- ステップ 2 -->
-          <div class="wizard-step" style="margin-top: 28px;">
-            <div class="step-badge">ステップ 2</div>
+          <div class="wizard-step" style="margin-top: 24px;">
+            <div class="step-badge" style="background: var(--toy-green);">ステップ 2</div>
             <h3 class="step-title">測りたい成果（ゴール）を選んでください</h3>
-            <p class="hint-text" style="margin-top: -4px; margin-bottom: 12px;">あてはまるものにチェックを入れるだけで、おすすめの計測設定を組み込みます。</p>
+            <p class="hint-text" style="margin-top: -6px; margin-bottom: 12px;">チェックを入れるだけで、おすすめの成果イベント（キーイベント）を自動設定します。</p>
             <div class="checkbox-grid">
               <label class="checkbox-card">
                 <input type="checkbox" id="goalInquiry" checked />
-                <span>✉️ お問い合わせ完了（サンクスページ到達・送信）</span>
+                <span>
+                  <svg class="svg-icon" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  お問い合わせ完了（サンクスページ到達・送信）
+                </span>
               </label>
               <label class="checkbox-card">
                 <input type="checkbox" id="goalDocument" checked />
-                <span>📄 資料請求・カタログPDFのダウンロード</span>
+                <span>
+                  <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                  資料請求・カタログPDFのダウンロード（自動検知）
+                </span>
               </label>
               <label class="checkbox-card">
                 <input type="checkbox" id="goalTel" />
-                <span>📞 電話番号リンク（tel:）のタップ</span>
+                <span>
+                  <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                  電話番号リンク（tel:）のタップ（自動検知）
+                </span>
               </label>
               <label class="checkbox-card">
                 <input type="checkbox" id="goalMember" />
-                <span>👤 会員登録・メルマガ登録</span>
+                <span>
+                  <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+                  会員登録・メルマガ登録
+                </span>
               </label>
               <label class="checkbox-card">
                 <input type="checkbox" id="goalPurchase" />
-                <span>💳 商品の購入完了（サンクスページ）</span>
+                <span>
+                  <svg class="svg-icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                  商品の購入完了（サンクスページ）
+                </span>
               </label>
             </div>
           </div>
 
           <!-- 送信ボタン & 進捗表示 -->
           <div style="margin-top: 28px; text-align: center;">
-            <div id="wizardProgress" style="display: none; margin-bottom: 16px; padding: 12px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius-sm); color: #1e40af; font-weight: 600;">
-              <span id="wizardProgressText">⏳ Google アナリティクスと通信中...</span>
+            <div id="wizardProgress" style="display: none; margin-bottom: 16px; padding: 14px; background: var(--toy-blue-light); border: 2px solid var(--toy-blue-border); border-radius: var(--radius-sm); color: var(--toy-blue-hover); font-weight: 700;">
+              <span id="wizardProgressText">Google アナリティクスと通信中...</span>
             </div>
-            <button id="btnGenerateTag" class="btn btn-primary" style="padding: 14px 36px; font-size: 1.05rem; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);">
-              ✨ GA4に自動作成してタグを発行する
+            <button id="btnGenerateTag" class="btn btn-primary" style="padding: 14px 36px; font-size: 1.05rem;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+              GA4に自動作成してタグを発行する
             </button>
           </div>
         </form>
@@ -164,21 +219,30 @@
         <!-- ステップ 3: タグ出力結果エリア -->
         <div id="wizardResult" class="wizard-result" style="display: none; margin-top: 32px;">
           <div class="result-header">
-            <h3 id="wizardResultTitle">🎉 Google アナリティクスに設定完了＆タグ発行！</h3>
-            <p id="wizardResultSubtitle" class="hint-text">Google アナリティクス側にもプロパティとキーイベントが自動作成されました。以下のコードをWebサイトに貼り付けてください。</p>
+            <h3 id="wizardResultTitle">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              Google アナリティクスに設定完了＆タグ発行！
+            </h3>
+            <p id="wizardResultSubtitle" class="hint-text">Google アナリティクス側に新しいプロパティ、データストリーム、成果イベント（キーイベント）をすべて自動作成しました。以下のコードをWebサイトに貼り付けてください。</p>
           </div>
 
           <div class="code-container">
             <div class="code-header">
               <span>Google タグ (gtag.js)</span>
-              <button id="btnCopyTag" class="btn btn-sm">📋 タグをコピーする</button>
+              <button id="btnCopyTag" class="btn btn-sm">
+                <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>
+                タグをコピーする
+              </button>
             </div>
             <pre><code id="generatedTagCode"></code></pre>
           </div>
 
           <!-- 貼り付け場所ガイド -->
           <div class="guide-box">
-            <h4>💡 どこに貼ればいいの？（簡単ガイド）</h4>
+            <h4>
+              <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              どこに貼ればいいの？（簡単ガイド）
+            </h4>
             <ul class="guide-list">
               <li>
                 <strong>HTML で作られているサイト:</strong><br />
@@ -201,156 +265,263 @@
       <!-- レポート表示（よみやすい）セクション -->
       <!-- ========================================== -->
       <div id="dashboardSection">
-      <!-- ブロック 1: 人は来ているか -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>1. 人は来ているか</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="overviewVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="summary-grid">
-          <div class="metric-card">
-            <div class="metric-label">回数（セッション）</div>
-            <div id="metricSessions" class="metric-value">-</div>
-            <div id="metricSessionsDiff" class="metric-sub">-</div>
+        
+        <!-- ブロック 1: 人は来ているか -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">1</div>
+              <h2>人は来ているか</h2>
+            </div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label">人数（ユーザー）</div>
-            <div id="metricUsers" class="metric-value">-</div>
-            <div id="metricUsersDiff" class="metric-sub">-</div>
+          <div class="verdict-box">
+            <p id="overviewVerdict" class="verdict-text">読み込み中...</p>
           </div>
-        </div>
-        <p class="hint-text">💡 <strong>用語の目安</strong>：回数＝サイトを開いた総回数（同じ人が2回来たら2）。人数＝訪れた実人数（同じ人が何回来ても1）。</p>
-      </section>
+          <div class="summary-grid">
+            <div class="metric-card">
+              <div class="metric-label">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                回数（セッション）
+              </div>
+              <div id="metricSessions" class="metric-value">-</div>
+              <div id="metricSessionsDiff" class="metric-sub">-</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                人数（ユーザー）
+              </div>
+              <div id="metricUsers" class="metric-value">-</div>
+              <div id="metricUsersDiff" class="metric-sub">-</div>
+            </div>
+          </div>
+          <p class="hint-text">💡 <strong>用語の目安</strong>：回数＝サイトを開いた総回数（同じ人が2回来たら2）。人数＝訪れた実人数（同じ人が何回来ても1）。</p>
+        </section>
 
-      <!-- ブロック 2: 見ているか -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>2. 見ているか</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="engagementVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="meter-container">
-          <div class="progress-bar-bg">
-            <div id="engagementBar" class="progress-bar-fill" style="width: 0%;"></div>
+        <!-- ブロック 2: 見ているか -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">2</div>
+              <h2>見ているか</h2>
+            </div>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.85rem; color: var(--text-secondary);">
-            <span>滞在・閲覧した割合: <strong id="engagementRateText">0%</strong></span>
-            <span>目安: 50%以上で良好</span>
+          <div class="verdict-box">
+            <p id="engagementVerdict" class="verdict-text">読み込み中...</p>
           </div>
-        </div>
-        <p class="hint-text">💡 <strong>用語の目安</strong>：見ている割合＝すぐ帰らず、10秒以上滞在したり複数ページを読んだりした訪問の比率。</p>
-      </section>
-
-      <!-- ブロック 3: どこから来たか -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>3. どこから来たか</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="channelVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="charts-wrapper">
-          <canvas id="channelChart"></canvas>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <caption>流入経路別の内訳（上位）</caption>
-            <thead>
-              <tr>
-                <th>流入経路</th>
-                <th class="num">回数</th>
-                <th class="num">回数の割合</th>
-                <th class="num">人数</th>
-                <th class="num">人数の割合</th>
-              </tr>
-            </thead>
-            <tbody id="channelTable"></tbody>
-          </table>
-        </div>
-        <p class="hint-text">💡 <strong>見方</strong>：検索エンジンからの流入が多いか、SNSや直接アクセスが多いかを確認します。</p>
-      </section>
-
-      <!-- ブロック 4: 成果はあるか -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>4. 成果はあるか</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="keyEventsVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="metric-card" style="max-width: 280px; margin-top: 12px;">
-          <div class="metric-label">達成された成果アクション</div>
-          <div id="metricKeyEvents" class="metric-value">0</div>
-          <div class="metric-sub">キーイベント合計</div>
-        </div>
-        <p class="hint-text">💡 <strong>用語の目安</strong>：成果＝お問い合わせ、資料請求、購入などサイト側で定めた目標の達成数。</p>
-      </section>
-
-      <!-- ブロック 5: どんな端末か -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>5. どんな端末か</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="deviceVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="charts-wrapper">
-          <canvas id="deviceChart"></canvas>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <caption>端末別の内訳（100%内訳）</caption>
-            <thead>
-              <tr>
-                <th>端末</th>
-                <th class="num">回数</th>
-                <th class="num">回数の割合</th>
-                <th class="num">人数</th>
-                <th class="num">人数の割合</th>
-              </tr>
-            </thead>
-            <tbody id="deviceTable"></tbody>
-          </table>
-        </div>
-        <p class="hint-text">💡 <strong>注意</strong>：人数の合計は出していません。同じ人がスマホとパソコンの両方からアクセスすると重複するためです。</p>
-      </section>
-
-      <!-- ブロック 6: どの OS か -->
-      <section class="card-section">
-        <div class="section-header">
-          <h2>6. どの OS か</h2>
-        </div>
-        <div class="verdict-box">
-          <p id="osVerdict" class="verdict-text">読み込み中...</p>
-        </div>
-        <div class="charts-wrapper charts-os-grid">
-          <div>
-            <canvas id="osSessions"></canvas>
+          <div class="meter-container">
+            <div class="progress-bar-bg">
+              <div id="engagementBar" class="progress-bar-fill" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);">
+              <span>滞在・閲覧した割合: <strong id="engagementRateText" style="color: var(--toy-blue); font-size: 1rem;">0%</strong></span>
+              <span>目安: 50%以上で良好</span>
+            </div>
           </div>
-          <div>
-            <canvas id="osUsers"></canvas>
+          <p class="hint-text">💡 <strong>用語の目安</strong>：見ている割合＝すぐ帰らず、10秒以上滞在したり複数ページを読んだりした訪問の比率。</p>
+        </section>
+
+        <!-- ブロック 3: どこから来たか -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">3</div>
+              <h2>どこから来たか</h2>
+            </div>
           </div>
-        </div>
-        <div class="table-wrapper">
-          <table>
-            <caption>OS別の内訳（回数が多い順）</caption>
-            <thead>
-              <tr>
-                <th>OS</th>
-                <th class="num">回数</th>
-                <th class="num">回数の割合</th>
-                <th class="num">人数</th>
-                <th class="num">人数の割合</th>
-              </tr>
-            </thead>
-            <tbody id="osTable"></tbody>
-          </table>
-        </div>
-        <p class="hint-text">💡 <strong>見方</strong>：iPhone/iPadは「iOS」、Macは「Mac」に平易化して表示しています。</p>
-      </section>
+          <div class="verdict-box">
+            <p id="channelVerdict" class="verdict-text">読み込み中...</p>
+          </div>
+          <div class="charts-wrapper">
+            <canvas id="channelChart"></canvas>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <caption>流入経路別の内訳（上位）</caption>
+              <thead>
+                <tr>
+                  <th>流入経路</th>
+                  <th class="num">回数</th>
+                  <th class="num">回数の割合</th>
+                  <th class="num">人数</th>
+                  <th class="num">人数の割合</th>
+                </tr>
+              </thead>
+              <tbody id="channelTable"></tbody>
+            </table>
+          </div>
+          <p class="hint-text">💡 <strong>見方</strong>：検索エンジンからの流入が多いか、SNSや直接アクセスが多いかを確認します。</p>
+        </section>
+
+        <!-- ブロック 4: 成果はあるか -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">4</div>
+              <h2>成果はあるか</h2>
+            </div>
+          </div>
+          <div class="verdict-box">
+            <p id="keyEventsVerdict" class="verdict-text">読み込み中...</p>
+          </div>
+          <div class="metric-card" style="max-width: 300px; margin-top: 14px;">
+            <div class="metric-label">
+              <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              達成された成果アクション
+            </div>
+            <div id="metricKeyEvents" class="metric-value">0</div>
+            <div class="metric-sub" style="color: var(--toy-green);">キーイベント達成合計</div>
+          </div>
+          <p class="hint-text">💡 <strong>用語の目安</strong>：成果＝お問い合わせ、資料請求、購入などサイト側で定めた目標の達成数。</p>
+        </section>
+
+        <!-- ブロック 5: どんな端末か -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">5</div>
+              <h2>どんな端末か</h2>
+            </div>
+          </div>
+          <div class="verdict-box">
+            <p id="deviceVerdict" class="verdict-text">読み込み中...</p>
+          </div>
+          <div class="charts-wrapper">
+            <canvas id="deviceChart"></canvas>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <caption>端末別の内訳（100%内訳）</caption>
+              <thead>
+                <tr>
+                  <th>端末</th>
+                  <th class="num">回数</th>
+                  <th class="num">回数の割合</th>
+                  <th class="num">人数</th>
+                  <th class="num">人数の割合</th>
+                </tr>
+              </thead>
+              <tbody id="deviceTable"></tbody>
+            </table>
+          </div>
+          <p class="hint-text">💡 <strong>注意</strong>：人数の合計は出していません。同じ人がスマホとパソコンの両方からアクセスすると重複するためです。</p>
+        </section>
+
+        <!-- ブロック 6: どの OS か -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge">6</div>
+              <h2>どの OS か</h2>
+            </div>
+          </div>
+          <div class="verdict-box">
+            <p id="osVerdict" class="verdict-text">読み込み中...</p>
+          </div>
+          <div class="charts-wrapper charts-os-grid">
+            <div>
+              <canvas id="osSessions"></canvas>
+            </div>
+            <div>
+              <canvas id="osUsers"></canvas>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <caption>OS別の内訳（回数が多い順）</caption>
+              <thead>
+                <tr>
+                  <th>OS</th>
+                  <th class="num">回数</th>
+                  <th class="num">回数の割合</th>
+                  <th class="num">人数</th>
+                  <th class="num">人数の割合</th>
+                </tr>
+              </thead>
+              <tbody id="osTable"></tbody>
+            </table>
+          </div>
+          <p class="hint-text">💡 <strong>見方</strong>：iPhone/iPadは「iOS」、Macは「Mac」に平易化して表示しています。</p>
+        </section>
+
+        <!-- ブロック 7: どの国・地域からか (新規追加!) -->
+        <section class="card-section">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="section-num-badge" style="background: var(--toy-yellow-light); color: var(--toy-yellow); border-color: var(--toy-yellow-border);">7</div>
+              <h2>どの国・地域からか</h2>
+            </div>
+          </div>
+          <div class="verdict-box" style="background: var(--toy-yellow-light); border-left-color: var(--toy-yellow);">
+            <p id="locationVerdict" class="verdict-text">読み込み中...</p>
+          </div>
+          <div class="charts-wrapper">
+            <canvas id="locationChart"></canvas>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <caption>地域・都市別の内訳（上位）</caption>
+              <thead>
+                <tr>
+                  <th>地域 / 都市</th>
+                  <th>国</th>
+                  <th class="num">回数</th>
+                  <th class="num">回数の割合</th>
+                  <th class="num">人数</th>
+                  <th class="num">人数の割合</th>
+                </tr>
+              </thead>
+              <tbody id="locationTable"></tbody>
+            </table>
+          </div>
+          <p class="hint-text">💡 <strong>見方</strong>：日本国内のどの都道府県からアクセスが多いか、海外からの訪問があるかを確認します。</p>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- AI 分析相談アシスタント (新規追加!) -->
+        <!-- ========================================== -->
+        <section class="card-section ai-card">
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <div class="ai-header-badge">
+                <svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 8V4H8M16 4h-4M4 8h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2zM9 13v2M15 13v2"/></svg>
+                AI アクセス解析アドバイザー
+              </div>
+              <h2>この数字から「今日やるべき改善」を相談する</h2>
+            </div>
+          </div>
+          <p class="hint-text" style="color: var(--text-secondary);">現在のデータ（回数、スマホ比率、流入経路、地域）をもとに、初心者向けに超具体的な改善アクションを提案します。</p>
+
+          <!-- 相談クイックボタン -->
+          <div class="ai-chips-wrap">
+            <button class="ai-chip" data-query="priority">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              今週の最優先改善アクション 3選
+            </button>
+            <button class="ai-chip" data-query="mobile">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+              スマホ訪問者の離脱を防ぐには？
+            </button>
+            <button class="ai-chip" data-query="conversion">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+              お問い合わせ（成果）を増やす施策
+            </button>
+            <button class="ai-chip" data-query="location">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>
+              地域傾向から見た集客・広告のヒント
+            </button>
+          </div>
+
+          <!-- AI 回答表示エリア -->
+          <div id="aiResponseBox" class="ai-response-box" style="display: none;">
+            <h4 id="aiResponseTitle">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+              AI アドバイス
+            </h4>
+            <div id="aiResponseContent"></div>
+          </div>
+        </section>
+
       </div> <!-- /#dashboardSection -->
     </main>
 

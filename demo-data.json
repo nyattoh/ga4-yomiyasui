@@ -32,5 +32,14 @@
     { "key": "Macintosh", "label": "Mac", "sessions": 1400, "users": 700 },
     { "key": "Linux", "label": "Linux", "sessions": 200, "users": 90 },
     { "key": "other", "label": "その他", "sessions": 140, "users": 100 }
+  ],
+  "location": [
+    { "key": "Tokyo", "label": "東京都", "country": "日本", "sessions": 7600, "users": 4100 },
+    { "key": "Osaka", "label": "大阪府", "country": "日本", "sessions": 2900, "users": 1650 },
+    { "key": "Aichi", "label": "愛知県", "country": "日本", "sessions": 1800, "users": 1020 },
+    { "key": "Kanagawa", "label": "神奈川県", "country": "日本", "sessions": 1500, "users": 880 },
+    { "key": "Fukuoka", "label": "福岡県", "country": "日本", "sessions": 1100, "users": 640 },
+    { "key": "United States", "label": "アメリカ（海外）", "country": "アメリカ", "sessions": 650, "users": 380 },
+    { "key": "other", "label": "その他地域", "country": "その他", "sessions": 2590, "users": 1220 }
   ]
 }
