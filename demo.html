@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GA4 よみやすい（デモ）</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <style>
+    :root { color-scheme: light; --bg: #f6f4ef; --ink: #1a1a1a; --muted: #5c5c5c; --card: #fff; --line: #e6e2d8; --mobile: #2f6f4e; --desk: #3d5a80; --tab: #c4a35a; }
+    body { margin: 0; font-family: "Hiragino Sans", "Noto Sans JP", sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+    main { max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+    h1 { font-size: 1.35rem; margin: 0 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 24px; }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    h2 { font-size: 1.05rem; margin: 0 0 8px; }
+    .verdict { font-size: 1.05rem; margin: 0 0 16px; }
+    .hint { font-size: .85rem; color: var(--muted); margin: 8px 0 0; }
+    .charts { display: grid; gap: 16px; }
+    @media (min-width: 720px) { .os-charts { grid-template-columns: 1fr 1fr; } }
+    canvas { max-height: 220px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: .92rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+    td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    caption { text-align: left; font-weight: 600; padding-bottom: 8px; }
+    .badge { display: inline-block; font-size: .75rem; background: #efe8d8; padding: 2px 8px; border-radius: 999px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="badge">デモデータ（API未接続）</p>
+    <h1>この28日の見方</h1>
+    <p class="lead">数字の名前は覚えなくてよい。上から順に見る。</p>
+
+    <section>
+      <h2>1. 人は来ているか</h2>
+      <p class="verdict">回数 18,140 / 人数 9,890。先週より回数は 8% 減。</p>
+      <p class="hint">回数＝開いた回数。人数＝来た人。同じ人が2回来たら回数は2、人数は1。</p>
+    </section>
+
+    <section>
+      <h2>5. どんな端末か</h2>
+      <p class="verdict" id="deviceVerdict"></p>
+      <div class="charts">
+        <canvas id="deviceChart"></canvas>
+      </div>
+      <table>
+        <caption>端末（グラフと同じ数字）</caption>
+        <thead>
+          <tr><th>端末</th><th class="num">回数</th><th class="num">回数の割合</th><th class="num">人数</th><th class="num">人数の割合</th></tr>
+        </thead>
+        <tbody id="deviceTable"></tbody>
+      </table>
+      <p class="hint">人数の合計は出さない。同じ人がスマホとパソコンの両方で来ると重なるため。</p>
+    </section>
+
+    <section>
+      <h2>6. どの OS か</h2>
+      <p class="verdict" id="osVerdict"></p>
+      <div class="charts os-charts">
+        <canvas id="osSessions"></canvas>
+        <canvas id="osUsers"></canvas>
+      </div>
+      <table>
+        <caption>OS（グラフと同じ数字）</caption>
+        <thead>
+          <tr><th>OS</th><th class="num">回数</th><th class="num">回数の割合</th><th class="num">人数</th><th class="num">人数の割合</th></tr>
+        </thead>
+        <tbody id="osTable"></tbody>
+      </table>
+    </section>
+  </main>
+  <script>
+    const devices = [
+      { key: "mobile", label: "スマホ", sessions: 12400, users: 7100 },
+      { key: "desktop", label: "パソコン", sessions: 5200, users: 2400 },
+      { key: "tablet", label: "タブレット", sessions: 540, users: 390 },
+    ];
+    const os = [
+      { key: "iOS", label: "iOS（iPhone / iPad）", sessions: 8100, users: 4600 },
+      { key: "Android", label: "Android", sessions: 4700, users: 2800 },
+      { key: "Windows", label: "Windows", sessions: 3600, users: 1600 },
+      { key: "Macintosh", label: "Mac", sessions: 1400, users: 700 },
+      { key: "Linux", label: "Linux", sessions: 200, users: 90 },
+      { key: "other", label: "その他", sessions: 140, users: 100 },
+    ];
+
+    function sum(rows, field) { return rows.reduce((a, r) => a + r[field], 0); }
+    function pct(n, total) { return total ? Math.round((n / total) * 100) + "%" : "—"; }
+    function fmt(n) { return n.toLocaleString("ja-JP"); }
+
+    const sTotal = sum(devices, "sessions");
+    const uTotal = sum(devices, "users");
+    document.getElementById("deviceVerdict").textContent =
+      `回数ではスマホ ${pct(devices[0].sessions, sTotal)}。人数ではスマホ ${pct(devices[0].users, uTotal)}。同じ人がスマホで何度も来ている。`;
+
+    const osS = sum(os, "sessions");
+    const osU = sum(os, "users");
+    document.getElementById("osVerdict").textContent =
+      `回数も人数も iOS が最多。パソコン勢は Windows が多い。`;
+
+    function fillTable(id, rows, sSum, uSum) {
+      document.getElementById(id).innerHTML = rows.map(r =>
+        `<tr><td>${r.label}</td><td class="num">${fmt(r.sessions)}</td><td class="num">${pct(r.sessions, sSum)}</td><td class="num">${fmt(r.users)}</td><td class="num">${pct(r.users, uSum)}</td></tr>`
+      ).join("");
+    }
+    fillTable("deviceTable", devices, sTotal, uTotal);
+    fillTable("osTable", os, osS, osU);
+
+    const colors = ["#2f6f4e", "#3d5a80", "#c4a35a"];
+    new Chart(document.getElementById("deviceChart"), {
+      type: "bar",
+      data: {
+        labels: ["回数", "人数"],
+        datasets: devices.map((d, i) => ({
+          label: d.label,
+          data: [d.sessions / sTotal * 100, d.users / uTotal * 100],
+          backgroundColor: colors[i],
+          stack: "a",
+        })),
+      },
+      options: {
+        indexAxis: "y",
+        responsive: true,
+        plugins: { legend: { position: "bottom" }, title: { display: true, text: "端末の内訳（%）" } },
+        scales: { x: { stacked: true, max: 100, ticks: { callback: v => v + "%" } }, y: { stacked: true } },
+      },
+    });
+
+    const osLabels = os.map(r => r.label);
+    new Chart(document.getElementById("osSessions"), {
+      type: "bar",
+      data: { labels: osLabels, datasets: [{ label: "回数", data: os.map(r => r.sessions), backgroundColor: "#2f6f4e" }] },
+      options: { indexAxis: "y", plugins: { legend: { display: false }, title: { display: true, text: "OS・回数" } } },
+    });
+    new Chart(document.getElementById("osUsers"), {
+      type: "bar",
+      data: { labels: osLabels, datasets: [{ label: "人数", data: os.map(r => r.users), backgroundColor: "#3d5a80" }] },
+      options: { indexAxis: "y", plugins: { legend: { display: false }, title: { display: true, text: "OS・人数" } } },
+    });
+  </script>
+</body>
+</html>

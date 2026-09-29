@@ -1,0 +1,43 @@
+{
+  "dateRange": { "startDate": "28daysAgo", "endDate": "yesterday" },
+  "compareRange": { "startDate": "56daysAgo", "endDate": "29daysAgo" },
+  "metrics": {
+    "sessions": "回数。サイトを開いた回数。同じ人が2回来たら2",
+    "activeUsers": "人数。その期間に使った人。同じ人が何回来ても1",
+    "engagementRate": "ある程度滞在した訪問の割合",
+    "keyEvents": "成果として設定した出来事の回数。未設定なら0になり得る"
+  },
+  "reports": {
+    "overview": {
+      "dimensions": [],
+      "metrics": ["sessions", "activeUsers", "engagementRate", "keyEvents"]
+    },
+    "channel": {
+      "dimensions": ["sessionDefaultChannelGroup"],
+      "metrics": ["sessions", "activeUsers"]
+    },
+    "device": {
+      "dimensions": ["deviceCategory"],
+      "metrics": ["sessions", "activeUsers"]
+    },
+    "os": {
+      "dimensions": ["operatingSystem"],
+      "metrics": ["sessions", "activeUsers"]
+    },
+    "deviceTrend": {
+      "dimensions": ["date", "deviceCategory"],
+      "metrics": ["sessions"]
+    }
+  },
+  "labels": {
+    "mobile": "スマホ",
+    "desktop": "パソコン",
+    "tablet": "タブレット",
+    "iOS": "iOS（iPhone / iPad）",
+    "Android": "Android",
+    "Windows": "Windows",
+    "Macintosh": "Mac",
+    "Linux": "Linux",
+    "Chrome OS": "ChromeOS"
+  }
+}

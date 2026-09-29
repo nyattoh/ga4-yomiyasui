@@ -1,0 +1,36 @@
+{
+  "overview": {
+    "current": {
+      "sessions": 18140,
+      "activeUsers": 9890,
+      "engagementRate": 0.642,
+      "keyEvents": 142
+    },
+    "previous": {
+      "sessions": 19717,
+      "activeUsers": 10520,
+      "engagementRate": 0.628,
+      "keyEvents": 130
+    }
+  },
+  "channel": [
+    { "key": "Organic Search", "label": "検索エンジン（無料）", "sessions": 9800, "users": 5600 },
+    { "key": "Direct", "label": "直接アクセス（ブックマーク等）", "sessions": 4200, "users": 2300 },
+    { "key": "Organic Social", "label": "SNS（無料）", "sessions": 2400, "users": 1350 },
+    { "key": "Referral", "label": "他サイトのリンク", "sessions": 1200, "users": 480 },
+    { "key": "Email", "label": "メール", "sessions": 540, "users": 160 }
+  ],
+  "device": [
+    { "key": "mobile", "label": "スマホ", "sessions": 12400, "users": 7100 },
+    { "key": "desktop", "label": "パソコン", "sessions": 5200, "users": 2400 },
+    { "key": "tablet", "label": "タブレット", "sessions": 540, "users": 390 }
+  ],
+  "os": [
+    { "key": "iOS", "label": "iOS（iPhone / iPad）", "sessions": 8100, "users": 4600 },
+    { "key": "Android", "label": "Android", "sessions": 4700, "users": 2800 },
+    { "key": "Windows", "label": "Windows", "sessions": 3600, "users": 1600 },
+    { "key": "Macintosh", "label": "Mac", "sessions": 1400, "users": 700 },
+    { "key": "Linux", "label": "Linux", "sessions": 200, "users": 90 },
+    { "key": "other", "label": "その他", "sessions": 140, "users": 100 }
+  ]
+}

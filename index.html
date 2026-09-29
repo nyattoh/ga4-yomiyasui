@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GA4 よみやすい - 初心者のためのアクセス解析ビューア</title>
+  <meta name="description" content="GA4の難解な指標やレポートを平易な日本語に翻訳し、今日見るべき数字と結論を提示する超軽量ビューア。" />
+  
+  <!-- 外部ライブラリ (Chart.js CDN + Google Identity Services) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- ヘッダー -->
+    <header class="header">
+      <div class="header-top">
+        <div class="title-group">
+          <h1>GA4 よみやすい</h1>
+          <span id="modeBadge" class="badge badge-demo">デモデータ（API未接続）</span>
+        </div>
+        <div class="header-actions">
+          <button id="btnSettings" class="btn btn-icon" title="設定" aria-label="設定">⚙ 設定</button>
+          <button id="btnAuth" class="btn btn-primary">Googleでログイン</button>
+        </div>
+      </div>
+      
+      <!-- コントロールバー（プロパティ・期間・更新） -->
+      <div class="control-bar">
+        <div class="property-selector">
+          <label for="propertySelect" style="font-size: 0.85rem; font-weight: 600; white-space: nowrap;">サイト:</label>
+          <select id="propertySelect">
+            <option value="demo">デモサイト（サンプルデータ）</option>
+          </select>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="period-buttons">
+            <button class="btn-period" data-period="7d">7日間</button>
+            <button class="btn-period active" data-period="28d">28日間（標準）</button>
+            <button class="btn-period" data-period="90d">90日間</button>
+          </div>
+          <button id="btnRefresh" class="btn btn-icon" title="最新データを再取得">🔄</button>
+        </div>
+      </div>
+    </header>
+
+    <main id="mainContent">
+      <!-- ブロック 1: 人は来ているか -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>1. 人は来ているか</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="overviewVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="summary-grid">
+          <div class="metric-card">
+            <div class="metric-label">回数（セッション）</div>
+            <div id="metricSessions" class="metric-value">-</div>
+            <div id="metricSessionsDiff" class="metric-sub">-</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">人数（ユーザー）</div>
+            <div id="metricUsers" class="metric-value">-</div>
+            <div id="metricUsersDiff" class="metric-sub">-</div>
+          </div>
+        </div>
+        <p class="hint-text">💡 <strong>用語の目安</strong>：回数＝サイトを開いた総回数（同じ人が2回来たら2）。人数＝訪れた実人数（同じ人が何回来ても1）。</p>
+      </section>
+
+      <!-- ブロック 2: 見ているか -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>2. 見ているか</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="engagementVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="meter-container">
+          <div class="progress-bar-bg">
+            <div id="engagementBar" class="progress-bar-fill" style="width: 0%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-top: 6px; font-size: 0.85rem; color: var(--text-secondary);">
+            <span>滞在・閲覧した割合: <strong id="engagementRateText">0%</strong></span>
+            <span>目安: 50%以上で良好</span>
+          </div>
+        </div>
+        <p class="hint-text">💡 <strong>用語の目安</strong>：見ている割合＝すぐ帰らず、10秒以上滞在したり複数ページを読んだりした訪問の比率。</p>
+      </section>
+
+      <!-- ブロック 3: どこから来たか -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>3. どこから来たか</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="channelVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="charts-wrapper">
+          <canvas id="channelChart"></canvas>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <caption>流入経路別の内訳（上位）</caption>
+            <thead>
+              <tr>
+                <th>流入経路</th>
+                <th class="num">回数</th>
+                <th class="num">回数の割合</th>
+                <th class="num">人数</th>
+                <th class="num">人数の割合</th>
+              </tr>
+            </thead>
+            <tbody id="channelTable"></tbody>
+          </table>
+        </div>
+        <p class="hint-text">💡 <strong>見方</strong>：検索エンジンからの流入が多いか、SNSや直接アクセスが多いかを確認します。</p>
+      </section>
+
+      <!-- ブロック 4: 成果はあるか -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>4. 成果はあるか</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="keyEventsVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="metric-card" style="max-width: 280px; margin-top: 12px;">
+          <div class="metric-label">達成された成果アクション</div>
+          <div id="metricKeyEvents" class="metric-value">0</div>
+          <div class="metric-sub">キーイベント合計</div>
+        </div>
+        <p class="hint-text">💡 <strong>用語の目安</strong>：成果＝お問い合わせ、資料請求、購入などサイト側で定めた目標の達成数。</p>
+      </section>
+
+      <!-- ブロック 5: どんな端末か -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>5. どんな端末か</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="deviceVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="charts-wrapper">
+          <canvas id="deviceChart"></canvas>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <caption>端末別の内訳（100%内訳）</caption>
+            <thead>
+              <tr>
+                <th>端末</th>
+                <th class="num">回数</th>
+                <th class="num">回数の割合</th>
+                <th class="num">人数</th>
+                <th class="num">人数の割合</th>
+              </tr>
+            </thead>
+            <tbody id="deviceTable"></tbody>
+          </table>
+        </div>
+        <p class="hint-text">💡 <strong>注意</strong>：人数の合計は出していません。同じ人がスマホとパソコンの両方からアクセスすると重複するためです。</p>
+      </section>
+
+      <!-- ブロック 6: どの OS か -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2>6. どの OS か</h2>
+        </div>
+        <div class="verdict-box">
+          <p id="osVerdict" class="verdict-text">読み込み中...</p>
+        </div>
+        <div class="charts-wrapper charts-os-grid">
+          <div>
+            <canvas id="osSessions"></canvas>
+          </div>
+          <div>
+            <canvas id="osUsers"></canvas>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <caption>OS別の内訳（回数が多い順）</caption>
+            <thead>
+              <tr>
+                <th>OS</th>
+                <th class="num">回数</th>
+                <th class="num">回数の割合</th>
+                <th class="num">人数</th>
+                <th class="num">人数の割合</th>
+              </tr>
+            </thead>
+            <tbody id="osTable"></tbody>
+          </table>
+        </div>
+        <p class="hint-text">💡 <strong>見方</strong>：iPhone/iPadは「iOS」、Macは「Mac」に平易化して表示しています。</p>
+      </section>
+    </main>
+
+    <!-- フッター -->
+    <footer class="footer">
+      <p>GA4 よみやすい — Google Analytics 4 非公式・オープンソース（MIT License）</p>
+      <p>データはお使いのブラウザと Google 間で直接通信され、開発者のサーバー等には一切保存・転送されません。</p>
+    </footer>
+
+    <!-- 設定モーダル (セルフホスト用 OAuth Client ID カスタマイズ) -->
+    <div id="settingsModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>設定</h3>
+          <button id="btnCloseSettings" class="close-btn">&times;</button>
+        </div>
+        <div class="form-group">
+          <label for="customClientId">Google OAuth クライアント ID</label>
+          <input type="text" id="customClientId" placeholder="例: 123456789-xxx.apps.googleusercontent.com" />
+          <p class="form-help">
+            通常は空欄のままで動作します。ローカル環境や自前サーバーでホストする際に Google から <code>origin_mismatch</code> エラーが出る場合は、ご自身の Google Cloud プロジェクトで作成した OAuth クライアント ID を入力してください。
+          </p>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+          <button id="btnResetClientId" class="btn">既定値に戻す</button>
+          <button id="btnSaveClientId" class="btn btn-primary">保存する</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- トースト通知 -->
+    <div id="toast" class="toast"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
