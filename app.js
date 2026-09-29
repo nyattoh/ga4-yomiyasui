@@ -28,6 +28,7 @@ const state = {
     clientId: localStorage.getItem("yomiyasui_custom_client_id") || DEFAULT_CLIENT_ID
   },
   properties: [],
+  accounts: [],
   selectedPropertyId: "demo",
   selectedPeriod: "28d",
   data: {
@@ -168,7 +169,7 @@ function initGIS() {
   try {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: state.auth.clientId,
-      scope: "https://www.googleapis.com/auth/analytics.readonly",
+      scope: "https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.edit",
       callback: response => {
         if (response.error) {
           handleAuthError(response.error);
@@ -215,12 +216,39 @@ function handleAuthButton() {
 
 function updateAuthUI(isLoggedIn) {
   const btnAuth = document.getElementById("btnAuth");
+  const wizardAuthBanner = document.getElementById("wizardAuthBanner");
+  const wizardAccountGroup = document.getElementById("wizardAccountGroup");
+
   if (isLoggedIn) {
     btnAuth.textContent = "ログアウト";
     btnAuth.classList.remove("btn-primary");
+    if (wizardAuthBanner) {
+      wizardAuthBanner.style.background = "#dcfce7";
+      wizardAuthBanner.style.borderColor = "#bbf7d0";
+      wizardAuthBanner.innerHTML = `
+        <div>
+          <strong style="color: #166534; font-size: 0.95rem;">✅ Google アカウント接続完了</strong>
+          <p style="margin: 2px 0 0; font-size: 0.825rem; color: #14532d;">GA4の作成権限が確認されました。下のフォームから直接GA4へ自動反映できます。</p>
+        </div>
+      `;
+    }
+    if (wizardAccountGroup) wizardAccountGroup.style.display = "block";
   } else {
     btnAuth.textContent = "Googleでログイン";
     btnAuth.classList.add("btn-primary");
+    if (wizardAuthBanner) {
+      wizardAuthBanner.style.background = "#fef3c7";
+      wizardAuthBanner.style.borderColor = "#fde68a";
+      wizardAuthBanner.innerHTML = `
+        <div>
+          <strong style="color: #92400e; font-size: 0.95rem;">⚠️ Google アカウント未ログイン</strong>
+          <p style="margin: 2px 0 0; font-size: 0.825rem; color: #78350f;">ログインすると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが自動作成されます。</p>
+        </div>
+        <button id="btnWizardLogin" class="btn btn-primary" style="font-size: 0.85rem;">Googleでログイン</button>
+      `;
+      document.getElementById("btnWizardLogin")?.addEventListener("click", handleAuthButton);
+    }
+    if (wizardAccountGroup) wizardAccountGroup.style.display = "none";
   }
   updateBadge();
 }
@@ -249,25 +277,30 @@ function handleAuthError(err) {
 }
 
 // ============================================================================
-// GA4 Admin API: プロパティ一覧取得
+// GA4 Admin API: プロパティ＆アカウント一覧取得
 // ============================================================================
 async function fetchProperties() {
-  showToast("アクセス可能なGA4プロパティを読み込み中...");
+  showToast("アクセス可能なGA4プロパティとアカウントを読み込み中...");
   try {
     const res = await fetch("https://analyticsadmin.googleapis.com/v1beta/accountSummaries", {
       headers: { Authorization: `Bearer ${state.auth.token}` }
     });
 
     if (!res.ok) {
-      if (res.status === 403) throw new Error("GA4の閲覧権限がありません。");
+      if (res.status === 403) throw new Error("GA4の閲覧・作成権限がありません。");
       throw new Error(`Admin API エラー (${res.status})`);
     }
 
     const json = await res.json();
     const props = [];
+    const accounts = [];
 
     if (json.accountSummaries && json.accountSummaries.length > 0) {
       json.accountSummaries.forEach(acc => {
+        // アカウントリスト
+        accounts.push({ id: acc.account, name: acc.displayName });
+
+        // プロパティリスト
         if (acc.propertySummaries) {
           acc.propertySummaries.forEach(p => {
             const rawId = p.property.replace("properties/", "");
@@ -278,19 +311,39 @@ async function fetchProperties() {
     }
 
     state.properties = props;
+    state.accounts = accounts;
     updatePropertyDropdown(props);
+    updateWizardAccountDropdown(accounts);
 
     if (props.length > 0) {
       state.selectedPropertyId = props[0].id;
       document.getElementById("propertySelect").value = props[0].id;
       fetchLiveData();
     } else {
-      showToast("このアカウントでは閲覧可能なプロパティが見つかりませんでした。");
+      showToast("閲覧可能なプロパティがまだありません。初期設定ウィザードで新規作成できます！");
     }
   } catch (err) {
     console.error("fetchProperties error:", err);
     showToast(`プロパティ一覧の取得に失敗しました: ${err.message}`);
   }
+}
+
+function updateWizardAccountDropdown(accounts) {
+  const sel = document.getElementById("wizardAccountSelect");
+  if (!sel) return;
+  sel.innerHTML = "";
+
+  if (accounts.length === 0) {
+    sel.innerHTML = '<option value="">アカウントが見つかりません</option>';
+    return;
+  }
+
+  accounts.forEach(a => {
+    const opt = document.createElement("option");
+    opt.value = a.id; // e.g. "accounts/12345"
+    opt.textContent = `${a.name} (${a.id.replace("accounts/", "")})`;
+    sel.appendChild(opt);
+  });
 }
 
 function updatePropertyDropdown(props) {
@@ -802,7 +855,7 @@ function showToast(msg) {
 // ============================================================================
 // GA4 かんたん初期設定ウィザード (Tag Generator)
 // ============================================================================
-function handleGenerateTag() {
+async function handleGenerateTag() {
   const siteName = document.getElementById("wizardSiteName").value.trim() || "マイサイト";
   const siteUrl = document.getElementById("wizardSiteUrl").value.trim() || "https://example.com";
   const siteType = document.querySelector('input[name="wizardSiteType"]:checked')?.value || "corporate";
@@ -813,13 +866,128 @@ function handleGenerateTag() {
   const goalMember = document.getElementById("goalMember").checked;
   const goalPurchase = document.getElementById("goalPurchase").checked;
 
-  // 測定IDのプレースホルダー（ログイン中でプロパティ選択済みの場合は反映）
+  const progressDiv = document.getElementById("wizardProgress");
+  const progressText = document.getElementById("wizardProgressText");
+  const resultTitle = document.getElementById("wizardResultTitle");
+  const resultSubtitle = document.getElementById("wizardResultSubtitle");
+  const btnGen = document.getElementById("btnGenerateTag");
+
   let measurementId = "G-XXXXXXXXXX";
-  if (state.mode === "live" && state.selectedPropertyId && state.selectedPropertyId !== "demo") {
-    measurementId = `G-PROP${state.selectedPropertyId.slice(-6)}`;
+  let isLiveCreated = false;
+
+  // --------------------------------------------------------------------------
+  // Google ログイン済みの場合: GA4 Admin API で本物のプロパティ＆ストリーム＆キーイベントを自動作成！
+  // --------------------------------------------------------------------------
+  if (state.auth.token) {
+    const accountSelect = document.getElementById("wizardAccountSelect");
+    const parentAccount = accountSelect?.value || state.accounts[0]?.id;
+
+    if (!parentAccount) {
+      showToast("作成先の Google アナリティクス アカウントが選択されていません");
+      return;
+    }
+
+    try {
+      btnGen.disabled = true;
+      progressDiv.style.display = "block";
+
+      // 1. プロパティ作成
+      progressText.textContent = "⏳ 1/3 Google アナリティクスに新しいプロパティを作成中...";
+      const propRes = await fetch("https://analyticsadmin.googleapis.com/v1beta/properties", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${state.auth.token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          parent: parentAccount,
+          displayName: siteName,
+          timeZone: "Asia/Tokyo",
+          currencyCode: "JPY"
+        })
+      });
+
+      if (!propRes.ok) {
+        const errJson = await propRes.json().catch(() => ({}));
+        throw new Error(`プロパティ作成エラー: ${errJson.error?.message || propRes.statusText}`);
+      }
+
+      const propData = await propRes.json();
+      const propertyName = propData.name; // "properties/12345678"
+
+      // 2. Web データストリーム作成 (測定ID発行)
+      progressText.textContent = "⏳ 2/3 Webデータストリームを作成し、測定IDを発行中...";
+      const cleanUri = siteUrl.startsWith("http") ? siteUrl : `https://${siteUrl}`;
+      const streamRes = await fetch(`https://analyticsadmin.googleapis.com/v1beta/${propertyName}/dataStreams`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${state.auth.token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          type: "WEB_DATA_STREAM",
+          displayName: `${siteName} Webストリーム`,
+          webStreamData: {
+            defaultUri: cleanUri
+          }
+        })
+      });
+
+      if (!streamRes.ok) {
+        const errJson = await streamRes.json().catch(() => ({}));
+        throw new Error(`データストリーム作成エラー: ${errJson.error?.message || streamRes.statusText}`);
+      }
+
+      const streamData = await streamRes.json();
+      if (streamData.webStreamData && streamData.webStreamData.measurementId) {
+        measurementId = streamData.webStreamData.measurementId;
+      }
+
+      // 3. キーイベント（成果）登録
+      progressText.textContent = "⏳ 3/3 成果（キーイベント）をGA4に自動登録中...";
+      const keyEventsToRegister = [];
+      if (goalInquiry) keyEventsToRegister.push("generate_lead");
+      if (goalDocument) keyEventsToRegister.push("file_download");
+      if (goalTel) keyEventsToRegister.push("click");
+      if (goalMember) keyEventsToRegister.push("sign_up");
+      if (goalPurchase) keyEventsToRegister.push("purchase");
+
+      for (const evtName of keyEventsToRegister) {
+        try {
+          await fetch(`https://analyticsadmin.googleapis.com/v1beta/${propertyName}/keyEvents`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${state.auth.token}`,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ eventName: evtName })
+          });
+        } catch (e) {
+          console.warn(`Key event ${evtName} registration failed:`, e);
+        }
+      }
+
+      isLiveCreated = true;
+      progressText.textContent = "✅ GA4への全設定が完了しました！";
+      showToast("GA4 へのプロパティ・ストリーム・キーイベントの作成が完了しました！");
+
+      // 作成したプロパティを一覧に追加＆選択
+      await fetchProperties();
+      const rawPropId = propertyName.replace("properties/", "");
+      state.selectedPropertyId = rawPropId;
+      const propSel = document.getElementById("propertySelect");
+      if (propSel) propSel.value = rawPropId;
+
+    } catch (err) {
+      console.error("Live GA4 creation error:", err);
+      showToast(`GA4自動設定エラー: ${err.message}`);
+      progressText.textContent = `⚠️ 自動作成エラー: ${err.message}（ひな形タグのみ生成します）`;
+    } finally {
+      btnGen.disabled = false;
+    }
   }
 
-  // 自動計測イベント設定
+  // 自動計測イベント設定コードの生成
   const events = [];
   if (goalInquiry) {
     events.push(`    // ✉️ お問い合わせ完了（サンクスページ等）の計測
@@ -891,11 +1059,18 @@ function handleGenerateTag() {
 <\/script>`;
 
   document.getElementById("generatedTagCode").textContent = snippet;
+
+  if (isLiveCreated) {
+    resultTitle.textContent = `🎉 GA4設定完了＆本物の測定ID（${measurementId}）を発行しました！`;
+    resultSubtitle.innerHTML = `Google アナリティクス側に新しいプロパティ、データストリーム、成果イベント（キーイベント）を<strong>すべて自動作成しました</strong>。以下のタグをサイトに貼り付けるだけで計測が始まります。`;
+  } else if (!state.auth.token) {
+    resultTitle.textContent = `📋 ひな形タグを生成しました（Google アカウント未連携）`;
+    resultSubtitle.innerHTML = `Google アカウントにログインしていないため、ひな形（<code>${measurementId}</code>）として生成しました。Google アナリティクス側に直接自動作成したい場合は、上部の「Googleでログイン」を行ってから再度ボタンを押してください。`;
+  }
+
   const resultArea = document.getElementById("wizardResult");
   resultArea.style.display = "block";
   resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
-
-  showToast("計測タグを生成しました！コピーしてサイトに貼り付けてください");
 }
 
 function handleCopyTag() {
