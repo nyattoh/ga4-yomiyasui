@@ -188,6 +188,26 @@ function setupEventListeners() {
     initGIS();
     showToast("既定値に戻しました");
   });
+
+  // 権限エラーモーダルの閉じるボタン
+  const permModal = document.getElementById("permissionModal");
+  document.getElementById("btnClosePermissionModal")?.addEventListener("click", () => {
+    permModal.classList.remove("open");
+  });
+  document.getElementById("btnClosePermissionModalBottom")?.addEventListener("click", () => {
+    permModal.classList.remove("open");
+  });
+}
+
+function showPermissionErrorModal(detailText) {
+  const permModal = document.getElementById("permissionModal");
+  const detailEl = document.getElementById("permissionErrorDetail");
+  if (detailEl) {
+    detailEl.innerHTML = `<strong>⚠️ 発生したエラー:</strong><br />${detailText}`;
+  }
+  if (permModal) {
+    permModal.classList.add("open");
+  }
 }
 
 // ============================================================================
@@ -202,7 +222,7 @@ function initGIS() {
   try {
     tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: state.auth.clientId,
-      scope: "https://www.googleapis.com/auth/analytics.readonly https://www.googleapis.com/auth/analytics.edit",
+      scope: "https://www.googleapis.com/auth/analytics https://www.googleapis.com/auth/analytics.edit https://www.googleapis.com/auth/analytics.readonly",
       callback: response => {
         if (response.error) {
           handleAuthError(response.error);
@@ -346,8 +366,16 @@ async function fetchProperties() {
     });
 
     if (!res.ok) {
-      if (res.status === 403) throw new Error("GA4の閲覧・作成権限がありません。");
-      throw new Error(`Admin API エラー (${res.status})`);
+      const errJson = await res.json().catch(() => ({}));
+      const rawMsg = errJson.error?.message || "";
+      if (res.status === 403) {
+        showPermissionErrorModal(
+          `Google Analytics へのアクセスが拒否されました（403 Forbidden）。<br /><br />` +
+          `<strong>Google API からのメッセージ:</strong><br /><code>${rawMsg || "権限が不足しています。"}</code>`
+        );
+        throw new Error("Google Cloud で Admin API が有効化されていないか、Google アナリティクスの権限が不足しています。");
+      }
+      throw new Error(`Admin API エラー (${res.status}): ${rawMsg || res.statusText}`);
     }
 
     const json = await res.json();
@@ -532,9 +560,17 @@ async function runReport(propId, dateRange, dimensions, metrics, headers) {
   });
 
   if (!res.ok) {
+    const errJson = await res.json().catch(() => ({}));
+    const rawMsg = errJson.error?.message || "";
     if (res.status === 429) throw new Error("GA4 APIの読み取り制限（クォータ）に達しました。");
-    if (res.status === 403) throw new Error("プロパティの閲覧権限がありません。");
-    throw new Error(`Data API エラー (${res.status})`);
+    if (res.status === 403) {
+      showPermissionErrorModal(
+        `Google Analytics Data API へのアクセスが拒否されました（403 Forbidden）。<br /><br />` +
+        `<strong>Google API からのメッセージ:</strong><br /><code>${rawMsg || "プロパティの閲覧権限が不足しています。"}</code>`
+      );
+      throw new Error("プロパティの閲覧権限がありません（Google Cloud で Data API が有効化されているか、アカウント権限をご確認ください）。");
+    }
+    throw new Error(`Data API エラー (${res.status}): ${rawMsg || res.statusText}`);
   }
   return await res.json();
 }
@@ -1043,7 +1079,15 @@ async function handleGenerateTag() {
 
       if (!propRes.ok) {
         const errJson = await propRes.json().catch(() => ({}));
-        throw new Error(`プロパティ作成エラー: ${errJson.error?.message || propRes.statusText}`);
+        const rawMsg = errJson.error?.message || propRes.statusText;
+        if (propRes.status === 403) {
+          showPermissionErrorModal(
+            `プロパティ作成が拒否されました（403 Forbidden）。<br /><br />` +
+            `<strong>Google API からのメッセージ:</strong><br /><code>${rawMsg}</code><br /><br />` +
+            `選択した Google アカウントに対する「編集者」権限がないか、Google Cloud で Admin API が有効になっていない可能性があります。`
+          );
+        }
+        throw new Error(`プロパティ作成エラー: ${rawMsg}`);
       }
 
       const propData = await propRes.json();

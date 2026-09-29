@@ -611,10 +611,25 @@
             </li>
           </ol>
 
-          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;">
-            💡 <strong>APIの有効化（必須）</strong>: Google Cloud の「APIとサービス」&gt;「ライブラリ」から以下2つを検索し「有効にする」を押してください。<br />
-            ・<code>Google Analytics Admin API</code>（初期設定の自動作成用）<br />
-            ・<code>Google Analytics Data API</code>（レポートの読み取り用）
+          <div style="margin-top: 14px; padding: 12px 14px; background: var(--toy-yellow-light); border: 1.5px solid var(--toy-yellow-border); border-radius: var(--radius-sm); font-size: 0.825rem; line-height: 1.6;">
+            <strong style="color: #92400e; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              【超重要】2つの API を有効化してください（クリックするだけ）
+            </strong>
+            <p style="margin: 0 0 8px; font-size: 0.8rem; color: #78350f;">
+              Google Cloud で以下の2つの API を「有効」にしないと、Google側から「閲覧・作成権限がない（403）」とエラーが返されます。下のボタンを押して、青い<strong>「有効にする」</strong>をクリックしてください。
+            </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com" target="_blank" rel="noopener noreferrer" class="btn btn-yellow" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">
+                ① Admin API を有効化 ↗
+              </a>
+              <a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener noreferrer" class="btn btn-yellow" style="padding: 6px 12px; font-size: 0.8rem; text-decoration: none;">
+                ② Data API を有効化 ↗
+              </a>
+            </div>
+            <p style="margin: 8px 0 0; font-size: 0.76rem; color: #78350f;">
+              ※ ログイン時に「Google アナリティクス データの表示と管理」という<strong>チェックボックスの許可</strong>をオンにしていることもご確認ください。
+            </p>
           </div>
         </div>
 
@@ -632,6 +647,57 @@
             <button id="btnCloseSettingsBottom" class="btn">閉じる</button>
             <button id="btnSaveClientId" class="btn btn-primary">保存して適用</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 権限エラー・API未有効化の解決案内モーダル -->
+    <div id="permissionModal" class="modal-overlay">
+      <div class="modal-content" style="border-color: var(--toy-pink);">
+        <div class="modal-header">
+          <h3 style="display: flex; align-items: center; gap: 8px; color: var(--toy-pink);">
+            <svg class="svg-icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Google API 権限エラーの解決ガイド
+          </h3>
+          <button id="btnClosePermissionModal" class="close-btn">&times;</button>
+        </div>
+        <div style="font-size: 0.9rem; line-height: 1.7;">
+          <div id="permissionErrorDetail" style="background: var(--toy-pink-light); border: 1.5px solid var(--toy-pink-border); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 0.85rem; color: #9f1239; margin-bottom: 16px;"></div>
+
+          <h4 style="margin: 0 0 8px; font-size: 0.95rem; color: var(--toy-blue);">解決手順（上から順にご確認ください）</h4>
+          
+          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px;">
+            <strong style="color: var(--text-main);">① Google Cloud で API が「有効」になっていますか？（一番多い原因）</strong>
+            <p style="margin: 4px 0 10px; font-size: 0.825rem; color: var(--text-secondary);">
+              Google Cloud で以下の2つの API が有効化されていないと、Google から 403（権限なし）エラーが返されます。下のボタンをクリックして、青い<strong>「有効にする」</strong>ボタンを押してください。
+            </p>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <a href="https://console.cloud.google.com/apis/library/analyticsadmin.googleapis.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.825rem; text-decoration: none;">
+                ① Admin API を有効にする ↗
+              </a>
+              <a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 6px 14px; font-size: 0.825rem; text-decoration: none;">
+                ② Data API を有効にする ↗
+              </a>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px;">
+            <strong style="color: var(--text-main);">② Google ログイン時にチェックボックス（権限）を許可しましたか？</strong>
+            <p style="margin: 4px 0 0; font-size: 0.825rem; color: var(--text-secondary);">
+              Google ログイン画面で「Google アナリティクス データの表示と管理」というチェックボックスのチェックを外したままログインすると権限エラーになります。一度ヘッダーから「ログアウト」し、再ログイン時にチェックを入れてください。
+            </p>
+          </div>
+
+          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px;">
+            <strong style="color: var(--text-main);">③ Google アナリティクスアカウントに対する編集権限はありますか？</strong>
+            <p style="margin: 4px 0 0; font-size: 0.825rem; color: var(--text-secondary);">
+              初期設定ウィザードで新規プロパティを作成する場合、選択した Google アカウント側で「管理者」または「編集者」権限が必要です。「閲覧者」権限のみのアカウントでは作成できません。
+            </p>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+          <button id="btnClosePermissionModalBottom" class="btn btn-primary">確認しました</button>
         </div>
       </div>
     </div>
