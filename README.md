@@ -119,9 +119,30 @@ ga4-yomiyasui/
 ├── screenshots/        # README用スクリーンショット
 │   ├── dashboard.png   # ダッシュボード画面
 │   └── wizard.png      # 初期設定ウィザード画面
+├── automation/         # Python CLI自動化ツール（プロパティ・ストリーム作成）
+│   ├── src/            # Pythonソースコード
+│   ├── tests/          # 単体テスト
+│   ├── docs/           # ADR・アーキテクチャドキュメント
+│   └── README.md       # CLI使用方法（日本語）
 ├── LICENSE             # MIT License
-└── README.md           # 本書
+└── README.md           # 本書（フロントエンド）
 ```
+
+---
+
+## 🤖 Python CLI 自動化ツール（Tracking-as-Code）
+
+GA4 のプロパティ・データストリーム・カスタム定義を YAML で宣言し、`plan` / `apply` で差分適用する CLI を `automation/` に同梱しています（プライベートリポジトリ `nyattoh/ga4-setup-automation` の実コードを移植）。
+
+```bash
+cd automation
+pip install -e ".[dev]"
+ga4-sync plan --config config/ga4-config.example.yaml
+# 適用は意図したときのみ（本番 GA4 を変更します）
+# ga4-sync apply --config your-config.yaml
+```
+
+詳細は [automation/README.md](automation/README.md) を参照してください。
 
 ---
 

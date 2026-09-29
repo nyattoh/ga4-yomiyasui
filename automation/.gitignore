@@ -1,0 +1,74 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sensitive Keys & Credentials
+credentials/
+service-account*.json
+*credentials*.json
+*.key
+*.pem
+.env.local
+.env.*.local
+
+# Logs & temp
+*.log
+tmp/
+scratch/
+
+# OAuth desktop client secrets (unused under GIS Token Model; keep quarantined)
+client_secret*.json
+*apps.googleusercontent.com.json
+
+# Pytest / caches
+.pytest_cache/
+
+# Nested separate repo and zip noise (do not vendor into this package)
+ga4-yomiyasui/
+ga4-yomiyasui.zip
+
+# Local agent / IDE scratch
+.gemini/
+.kotavideo/
+
+# OAuth tokens
+token.json
+
