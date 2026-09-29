@@ -91,15 +91,14 @@
         <p class="hint-text" style="margin-top: 0;">難しい用語や設定ファイルは不要です。質問に答えてボタンを押すだけで、Google アナリティクスにプロパティとキーイベントを自動作成します。</p>
 
         <!-- Google アカウント連携状態バナー -->
-        <div id="wizardAuthBanner" style="margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md); background: var(--toy-yellow-light); border: 2px solid var(--toy-yellow-border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-          <div>
-            <strong style="color: #92400e; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
-              <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-              Google アカウント未ログイン
-            </strong>
-            <p style="margin: 2px 0 0; font-size: 0.825rem; color: #78350f;">ログインすると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが自動作成されます。</p>
-          </div>
-          <button id="btnWizardLogin" class="btn btn-primary" style="font-size: 0.85rem;">Googleでログイン</button>
+        <div id="wizardAuthBanner" style="margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md); background: var(--toy-yellow-light); border: 2px solid var(--toy-yellow-border);">
+          <strong style="color: #92400e; font-size: 0.95rem; display: flex; align-items: center; gap: 6px;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            Google アカウント未連携
+          </strong>
+          <p style="margin: 4px 0 0; font-size: 0.85rem; color: #78350f;">
+            右上の<strong>「Googleでログイン」</strong>から連携すると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが直接自動作成されます。未ログインのままでもタグのひな形を発行できます。
+          </p>
         </div>
 
         <form id="wizardForm" onsubmit="return false;" style="margin-top: 20px;">
@@ -265,6 +264,29 @@
       <!-- レポート表示（よみやすい）セクション -->
       <!-- ========================================== -->
       <div id="dashboardSection">
+
+        <!-- 初期設定未完了時のロック・案内画面 -->
+        <div id="unconfiguredGate" class="card-section" style="text-align: center; padding: 48px 24px; border: 2.5px dashed var(--toy-blue-border); background: #ffffff;">
+          <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: var(--toy-blue-light); color: var(--toy-blue); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center;">
+            <svg class="svg-icon svg-icon-lg" style="width: 2rem; height: 2rem;" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+          </div>
+          <h2 style="font-size: 1.4rem; margin-bottom: 8px;">まだサイトの初期設定が完了していません</h2>
+          <p style="color: var(--text-muted); max-width: 520px; margin: 0 auto 24px; font-size: 0.95rem; line-height: 1.7;">
+            データを見るには、まずあなたのWebサイトを登録して Google アナリティクスの設定を完了させる必要があります。ウィザードで3つの質問に答えるだけで、プロパティ作成と計測タグの発行が完了します！
+          </p>
+          <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+            <button id="btnGoWizard" class="btn btn-primary" style="padding: 12px 28px; font-size: 1.05rem;">
+              <svg class="svg-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+              初期設定ウィザードを開始する
+            </button>
+            <button id="btnUnlockDemo" class="btn" style="font-size: 0.9rem; color: var(--text-muted);">
+              サンプル画面を見る（デモ）
+            </button>
+          </div>
+        </div>
+
+        <!-- 実際のレポートブロック群 (初期設定完了時にアンロック) -->
+        <div id="reportBlocks" style="display: none;">
         
         <!-- ブロック 1: 人は来ているか -->
         <section class="card-section">
@@ -521,6 +543,7 @@
             <div id="aiResponseContent"></div>
           </div>
         </section>
+        </div> <!-- /#reportBlocks -->
 
       </div> <!-- /#dashboardSection -->
     </main>

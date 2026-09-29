@@ -22,6 +22,7 @@ const LABEL_MAP = {
 // アプリケーション状態
 const state = {
   mode: "demo", // 'demo' | 'live'
+  isConfigured: localStorage.getItem("yomiyasui_configured") === "true",
   auth: {
     token: null,
     tokenExpiry: null,
@@ -54,6 +55,7 @@ let tokenClient = null;
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
+  updateConfigurationGate();
   loadDemoData();
   initGIS();
   setupAIAdvisor();
@@ -72,7 +74,7 @@ function setupEventListeners() {
     tabWizard.classList.remove("active");
     dashboardSection.style.display = "block";
     wizardSection.style.display = "none";
-    controlBar.style.display = "flex";
+    updateConfigurationGate();
   });
 
   tabWizard.addEventListener("click", () => {
@@ -81,6 +83,16 @@ function setupEventListeners() {
     dashboardSection.style.display = "none";
     wizardSection.style.display = "block";
     controlBar.style.display = "none";
+  });
+
+  // 初期設定ゲートのボタン
+  document.getElementById("btnGoWizard")?.addEventListener("click", () => {
+    tabWizard.click();
+  });
+  document.getElementById("btnUnlockDemo")?.addEventListener("click", () => {
+    state.isConfigured = true;
+    updateConfigurationGate();
+    showToast("サンプル画面（デモ）を表示しました");
   });
 
   // ウィザード: タグ生成ボタン
@@ -190,6 +202,22 @@ function initGIS() {
   }
 }
 
+function updateConfigurationGate() {
+  const unconfiguredGate = document.getElementById("unconfiguredGate");
+  const reportBlocks = document.getElementById("reportBlocks");
+  const controlBar = document.getElementById("controlBar");
+
+  if (!state.isConfigured) {
+    if (unconfiguredGate) unconfiguredGate.style.display = "block";
+    if (reportBlocks) reportBlocks.style.display = "none";
+    if (controlBar) controlBar.style.display = "none";
+  } else {
+    if (unconfiguredGate) unconfiguredGate.style.display = "none";
+    if (reportBlocks) reportBlocks.style.display = "block";
+    if (controlBar) controlBar.style.display = "flex";
+  }
+}
+
 function handleAuthButton() {
   if (state.auth.token) {
     // ログアウト処理
@@ -205,6 +233,14 @@ function handleAuthButton() {
     loadDemoData();
     showToast("ログアウトしました（デモモードに戻ります）");
   } else {
+    // Client ID がダミーまたは未設定の場合は、Googleの 401 エラー画面を出さずに設定モーダルを開く
+    const isDummy = !state.auth.clientId || state.auth.clientId === DEFAULT_CLIENT_ID || state.auth.clientId.includes("exampledummyclientid");
+    if (isDummy) {
+      document.getElementById("settingsModal").classList.add("open");
+      showToast("Google ログインには、OAuth クライアント ID の設定が必要です（右上の設定から登録）");
+      return;
+    }
+
     // ログイン処理
     if (!tokenClient) {
       initGIS();
@@ -1149,6 +1185,11 @@ async function handleGenerateTag() {
   const resultArea = document.getElementById("wizardResult");
   resultArea.style.display = "block";
   resultArea.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // タグ生成完了を初期設定済みとして記録し、ダッシュボードのゲートを更新
+  state.isConfigured = true;
+  localStorage.setItem("yomiyasui_configured", "true");
+  updateConfigurationGate();
 }
 
 function handleCopyTag() {
