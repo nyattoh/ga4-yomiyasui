@@ -97,8 +97,14 @@
             Google アカウント未連携
           </strong>
           <p style="margin: 4px 0 0; font-size: 0.85rem; color: #78350f;">
-            右上の<strong>「Googleでログイン」</strong>から連携すると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが直接自動作成されます。未ログインのままでもタグのひな形を発行できます。
+            右上の<strong>「Googleでログイン」</strong>から連携すると、ボタン1つであなたの Google アナリティクスにプロパティとキーイベントが直接自動作成されます。（未ログインのままでもタグのひな形を発行できます）
           </p>
+          <div style="margin-top: 10px;">
+            <button id="btnOpenSettingsFromWizard" class="btn btn-yellow" style="padding: 4px 12px; font-size: 0.8rem;">
+              <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Google Cloud でのクライアントID取得手順・設定はこちら
+            </button>
+          </div>
         </div>
 
         <form id="wizardForm" onsubmit="return false;" style="margin-top: 20px;">
@@ -554,23 +560,78 @@
       <p>データはお使いのブラウザと Google 間で直接通信され、開発者のサーバー等には一切保存・転送されません。</p>
     </footer>
 
-    <!-- 設定モーダル (セルフホスト用 OAuth Client ID カスタマイズ) -->
+    <!-- 設定モーダル (Google OAuth Client ID 設定 & 取得ガイド) -->
     <div id="settingsModal" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>設定</h3>
+          <h3 style="display: flex; align-items: center; gap: 8px;">
+            <svg class="svg-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Google アカウント連携設定
+          </h3>
           <button id="btnCloseSettings" class="close-btn">&times;</button>
         </div>
-        <div class="form-group">
-          <label for="customClientId">Google OAuth クライアント ID</label>
-          <input type="text" id="customClientId" placeholder="例: 123456789-xxx.apps.googleusercontent.com" />
-          <p class="form-help">
-            通常は空欄のままで動作します。ローカル環境や自前サーバーでホストする際に Google から <code>origin_mismatch</code> エラーが出る場合は、ご自身の Google Cloud プロジェクトで作成した OAuth クライアント ID を入力してください。
+
+        <!-- かんたん取得手順ガイド -->
+        <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 8px; font-size: 0.95rem; color: var(--toy-blue); display: flex; align-items: center; gap: 6px;">
+            <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            OAuth クライアント ID の取得手順（無料・約3分）
+          </h4>
+          <p style="font-size: 0.825rem; color: var(--text-secondary); margin: 0 0 12px; line-height: 1.6;">
+            Google アナリティクスに直接アクセスして自動設定やデータ閲覧を行うため、あなた専用の Google Cloud「クライアント ID」が必要です。
           </p>
+
+          <ol style="margin: 0; padding-left: 20px; font-size: 0.85rem; color: var(--text-main); line-height: 1.75;">
+            <li style="margin-bottom: 10px;">
+              <strong>Google Cloud Console を開く</strong><br />
+              <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; padding: 6px 14px; font-size: 0.825rem; margin-top: 4px; text-decoration: none;">
+                <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                Google Cloud Console（認証情報）を開く ↗
+              </a>
+              <span style="display: block; font-size: 0.78rem; color: var(--text-muted); margin-top: 3px;">
+                ※ 初めての場合は画面上部で「プロジェクトを作成」（名前: <code>GA4よみやすい</code> 等）を行ってください。
+              </span>
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>「+ 認証情報を作成」&gt;「OAuth クライアント ID」をクリック</strong><br />
+              ・アプリケーションの種類: <strong>「ウェブ アプリケーション」</strong> を選択<br />
+              ・名前: <code>GA4よみやすい</code>（何でもOK）
+            </li>
+            <li style="margin-bottom: 10px;">
+              <strong>「承認済みの JavaScript 生成元」に現在のURLを登録</strong><br />
+              下のURLをコピーして「URI を追加」に貼り付けます：
+              <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px;">
+                <code id="currentOriginCode" style="background: #ffffff; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.82rem; font-weight: 700; color: var(--toy-blue); word-break: break-all;"></code>
+                <button id="btnCopyOrigin" class="btn" style="padding: 4px 10px; font-size: 0.78rem; white-space: nowrap;">URLをコピー</button>
+              </div>
+            </li>
+            <li style="margin-bottom: 4px;">
+              <strong>発行された「クライアント ID」を下の入力欄に貼り付け</strong><br />
+              作成完了画面に表示される <code>xxx.apps.googleusercontent.com</code> をコピーして、下の枠に貼り付けて「保存して適用」を押せば完了です！
+            </li>
+          </ol>
+
+          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 0.78rem; color: var(--text-muted); line-height: 1.6;">
+            💡 <strong>APIの有効化（必須）</strong>: Google Cloud の「APIとサービス」&gt;「ライブラリ」から以下2つを検索し「有効にする」を押してください。<br />
+            ・<code>Google Analytics Admin API</code>（初期設定の自動作成用）<br />
+            ・<code>Google Analytics Data API</code>（レポートの読み取り用）
+          </div>
         </div>
-        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
-          <button id="btnResetClientId" class="btn">既定値に戻す</button>
-          <button id="btnSaveClientId" class="btn btn-primary">保存する</button>
+
+        <div class="form-group">
+          <label for="customClientId" style="display: flex; align-items: center; justify-content: space-between;">
+            <span>OAuth クライアント ID</span>
+            <span style="font-size: 0.78rem; font-weight: normal; color: var(--text-muted);">（ブラウザの localStorage に安全に保存されます）</span>
+          </label>
+          <input type="text" id="customClientId" placeholder="例: 123456789-xxxxxxxx.apps.googleusercontent.com" />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+          <button id="btnResetClientId" class="btn" style="font-size: 0.85rem;">リセット</button>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnCloseSettingsBottom" class="btn">閉じる</button>
+            <button id="btnSaveClientId" class="btn btn-primary">保存して適用</button>
+          </div>
         </div>
       </div>
     </div>

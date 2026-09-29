@@ -144,12 +144,30 @@ function setupEventListeners() {
   const inputClientId = document.getElementById("customClientId");
   inputClientId.value = localStorage.getItem("yomiyasui_custom_client_id") || "";
 
-  document.getElementById("btnSettings").addEventListener("click", () => {
+  function openSettingsModal() {
+    const originCode = document.getElementById("currentOriginCode");
+    if (originCode) originCode.textContent = window.location.origin;
     modal.classList.add("open");
-  });
+  }
+
+  document.getElementById("btnSettings").addEventListener("click", openSettingsModal);
+  document.getElementById("btnOpenSettingsFromWizard")?.addEventListener("click", openSettingsModal);
+  
   document.getElementById("btnCloseSettings").addEventListener("click", () => {
     modal.classList.remove("open");
   });
+  document.getElementById("btnCloseSettingsBottom")?.addEventListener("click", () => {
+    modal.classList.remove("open");
+  });
+
+  document.getElementById("btnCopyOrigin")?.addEventListener("click", () => {
+    navigator.clipboard.writeText(window.location.origin).then(() => {
+      showToast("現在のURL（生成元）をコピーしました！");
+    }).catch(() => {
+      showToast("コピーに失敗しました");
+    });
+  });
+
   document.getElementById("btnSaveClientId").addEventListener("click", () => {
     const val = inputClientId.value.trim();
     if (val) {
@@ -161,7 +179,7 @@ function setupEventListeners() {
     }
     modal.classList.remove("open");
     initGIS();
-    showToast("設定を保存しました");
+    showToast("クライアントIDを保存しました！「Googleでログイン」をお試しください");
   });
   document.getElementById("btnResetClientId").addEventListener("click", () => {
     localStorage.removeItem("yomiyasui_custom_client_id");
@@ -236,8 +254,10 @@ function handleAuthButton() {
     // Client ID がダミーまたは未設定の場合は、Googleの 401 エラー画面を出さずに設定モーダルを開く
     const isDummy = !state.auth.clientId || state.auth.clientId === DEFAULT_CLIENT_ID || state.auth.clientId.includes("exampledummyclientid");
     if (isDummy) {
+      const originCode = document.getElementById("currentOriginCode");
+      if (originCode) originCode.textContent = window.location.origin;
       document.getElementById("settingsModal").classList.add("open");
-      showToast("Google ログインには、OAuth クライアント ID の設定が必要です（右上の設定から登録）");
+      showToast("Google ログインには OAuth クライアント ID が必要です。取得手順をご確認ください");
       return;
     }
 
