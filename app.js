@@ -54,11 +54,20 @@ let tokenClient = null;
 // 初期化
 // ============================================================================
 document.addEventListener("DOMContentLoaded", () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get("demo") === "1") {
+    state.isConfigured = true;
+  }
+
   setupEventListeners();
   updateConfigurationGate();
   loadDemoData();
   initGIS();
   setupAIAdvisor();
+
+  if (urlParams.get("tab") === "wizard") {
+    document.getElementById("tabWizard")?.click();
+  }
 });
 
 function setupEventListeners() {
