@@ -108,15 +108,59 @@
         </div>
 
         <form id="wizardForm" onsubmit="return false;" style="margin-top: 20px;">
+          <!-- 作成方法の選択 -->
+          <div style="margin-bottom: 20px;">
+            <label style="font-size: 0.92rem; font-weight: 800; margin-bottom: 8px; display: block;">作成方法を選択:</label>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <label class="radio-card" style="flex: 1; min-width: 240px; padding: 12px 14px;">
+                <input type="radio" name="wizardMode" value="auto" checked />
+                <div class="radio-card-content">
+                  <span class="radio-title" style="font-size: 0.9rem;">
+                    <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3z"/></svg>
+                    Google アナリティクスに自動作成
+                  </span>
+                  <span class="radio-desc">アカウントにプロパティとキーイベントを直接作成（管理者・編集者権限が必要）</span>
+                </div>
+              </label>
+              <label class="radio-card" style="flex: 1; min-width: 240px; padding: 12px 14px;">
+                <input type="radio" name="wizardMode" value="manual" />
+                <div class="radio-card-content">
+                  <span class="radio-title" style="font-size: 0.9rem;">
+                    <svg class="svg-icon svg-icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    計測タグだけ生成（手動設置用）
+                  </span>
+                  <span class="radio-desc">アカウントの作成権限がない場合や、既存の測定ID（G-xxxx）を使う場合</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <!-- 手動用測定ID入力欄 (wizardMode === "manual" 時に表示) -->
+          <div id="wizardManualMeasurementIdGroup" class="form-group" style="display: none; margin-bottom: 20px; padding: 14px 18px; background: #ffffff; border: 2px dashed var(--toy-blue-border); border-radius: var(--radius-md);">
+            <label for="wizardManualMeasurementId" style="font-weight: 800; font-size: 0.9rem; color: var(--toy-blue);">
+              Google アナリティクスの測定 ID（省略可）
+            </label>
+            <input type="text" id="wizardManualMeasurementId" placeholder="例: G-1234567890（空欄ならひな形を発行します）" style="margin-top: 6px;" />
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 6px 0 0; line-height: 1.5;">
+              ※ すでに作成済みのプロパティや、GA4管理画面（analytics.google.com）で作成したプロパティの「G-」から始まる測定IDを入力してください。
+            </p>
+          </div>
+
           <!-- ステップ 1 -->
           <div class="wizard-step">
             <div class="step-badge">ステップ 1</div>
             <h3 class="step-title">サイトの基本情報と作成先アカウント</h3>
             <div id="wizardAccountGroup" class="form-group" style="display: none; margin-bottom: 16px; padding: 14px; background: var(--toy-blue-light); border: 2px solid var(--toy-blue-border); border-radius: var(--radius-sm);">
-              <label for="wizardAccountSelect" style="color: var(--toy-blue-hover); font-weight: 800;">作成先 Google アナリティクス アカウント</label>
-              <select id="wizardAccountSelect">
+              <label for="wizardAccountSelect" style="color: var(--toy-blue-hover); font-weight: 800; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+                <span>作成先 Google アナリティクス アカウント</span>
+                <span style="font-size: 0.78rem; font-weight: normal; color: #92400e;">※「管理者」または「編集者」権限のアカウントを選択してください</span>
+              </label>
+              <select id="wizardAccountSelect" style="margin-top: 6px;">
                 <option value="">アカウントを読み込み中...</option>
               </select>
+              <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 6px 0 0; line-height: 1.5;">
+                💡 会社等から「閲覧のみ」で共有されているアカウントでは作成できません。作成エラーが出る場合は、別のアカウントを選択するか、上の「計測タグだけ生成」をお選びください。
+              </p>
             </div>
             <div class="form-grid">
               <div class="form-group">
@@ -696,7 +740,10 @@
           </div>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; flex-wrap: wrap; gap: 8px;">
+          <button id="btnSwitchToManualMode" class="btn btn-yellow" style="font-size: 0.85rem;">
+            👉 計測タグだけ発行する（手動作成）に切り替える
+          </button>
           <button id="btnClosePermissionModalBottom" class="btn btn-primary">確認しました</button>
         </div>
       </div>

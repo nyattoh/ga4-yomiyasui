@@ -197,6 +197,33 @@ function setupEventListeners() {
   document.getElementById("btnClosePermissionModalBottom")?.addEventListener("click", () => {
     permModal.classList.remove("open");
   });
+
+  // ウィザード作成モードの切り替え (auto vs manual)
+  document.querySelectorAll('input[name="wizardMode"]').forEach(radio => {
+    radio.addEventListener("change", e => {
+      const isManual = e.target.value === "manual";
+      const manualGroup = document.getElementById("wizardManualMeasurementIdGroup");
+      const accountGroup = document.getElementById("wizardAccountGroup");
+      if (manualGroup) manualGroup.style.display = isManual ? "block" : "none";
+      if (accountGroup) accountGroup.style.display = (!isManual && state.auth.token) ? "block" : "none";
+    });
+  });
+
+  // 権限エラーモーダル内の「手動作成モードに切り替える」ボタン
+  document.getElementById("btnSwitchToManualMode")?.addEventListener("click", () => {
+    permModal.classList.remove("open");
+    tabWizard.click();
+    const manualRadio = document.querySelector('input[name="wizardMode"][value="manual"]');
+    if (manualRadio) {
+      manualRadio.checked = true;
+      manualRadio.dispatchEvent(new Event("change"));
+    }
+    const manualGroup = document.getElementById("wizardManualMeasurementIdGroup");
+    if (manualGroup) {
+      manualGroup.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    showToast("「計測タグだけ生成（手動用）」モードに切り替えました");
+  });
 }
 
 function showPermissionErrorModal(detailText) {
@@ -1029,6 +1056,8 @@ async function handleGenerateTag() {
   const siteName = document.getElementById("wizardSiteName").value.trim() || "マイサイト";
   const siteUrl = document.getElementById("wizardSiteUrl").value.trim() || "https://example.com";
   const siteType = document.querySelector('input[name="wizardSiteType"]:checked')?.value || "corporate";
+  const wizardMode = document.querySelector('input[name="wizardMode"]:checked')?.value || "auto";
+  const manualMeasurementId = document.getElementById("wizardManualMeasurementId")?.value.trim() || "";
 
   const goalInquiry = document.getElementById("goalInquiry").checked;
   const goalDocument = document.getElementById("goalDocument").checked;
@@ -1042,13 +1071,13 @@ async function handleGenerateTag() {
   const resultSubtitle = document.getElementById("wizardResultSubtitle");
   const btnGen = document.getElementById("btnGenerateTag");
 
-  let measurementId = "G-XXXXXXXXXX";
+  let measurementId = manualMeasurementId ? manualMeasurementId.toUpperCase() : "G-XXXXXXXXXX";
   let isLiveCreated = false;
 
   // --------------------------------------------------------------------------
-  // Google ログイン済みの場合: GA4 Admin API で本物のプロパティ＆ストリーム＆キーイベントを自動作成！
+  // Google ログイン済み かつ 自動作成モードの場合: GA4 Admin API で直接作成を試みる
   // --------------------------------------------------------------------------
-  if (state.auth.token) {
+  if (state.auth.token && wizardMode === "auto") {
     const accountSelect = document.getElementById("wizardAccountSelect");
     const parentAccount = accountSelect?.value || state.accounts[0]?.id;
 
@@ -1081,10 +1110,12 @@ async function handleGenerateTag() {
         const errJson = await propRes.json().catch(() => ({}));
         const rawMsg = errJson.error?.message || propRes.statusText;
         if (propRes.status === 403) {
+          const selectedAccountName = accountSelect?.options[accountSelect.selectedIndex]?.text || parentAccount;
           showPermissionErrorModal(
-            `プロパティ作成が拒否されました（403 Forbidden）。<br /><br />` +
-            `<strong>Google API からのメッセージ:</strong><br /><code>${rawMsg}</code><br /><br />` +
-            `選択した Google アカウントに対する「編集者」権限がないか、Google Cloud で Admin API が有効になっていない可能性があります。`
+            `選択したアカウント（<strong>${selectedAccountName}</strong>）に対する<strong>「プロパティ作成権限（編集者以上）」</strong>がありません。<br /><br />` +
+            `<strong>Google API メッセージ:</strong><br /><code>${rawMsg}</code><br /><br />` +
+            `※ 既存のレポートを閲覧する権限（閲覧者）はあっても、新しいプロパティを作成する権限がない場合に発生します。<br />` +
+            `下のボタンから「計測タグだけ発行」に切り替えていただくか、ご自身が管理者になっている別のアカウントを選択してください。`
           );
         }
         throw new Error(`プロパティ作成エラー: ${rawMsg}`);
@@ -1241,9 +1272,12 @@ async function handleGenerateTag() {
   if (isLiveCreated) {
     resultTitle.textContent = `🎉 GA4設定完了＆本物の測定ID（${measurementId}）を発行しました！`;
     resultSubtitle.innerHTML = `Google アナリティクス側に新しいプロパティ、データストリーム、成果イベント（キーイベント）を<strong>すべて自動作成しました</strong>。以下のタグをサイトに貼り付けるだけで計測が始まります。`;
-  } else if (!state.auth.token) {
-    resultTitle.textContent = `📋 ひな形タグを生成しました（Google アカウント未連携）`;
-    resultSubtitle.innerHTML = `Google アカウントにログインしていないため、ひな形（<code>${measurementId}</code>）として生成しました。Google アナリティクス側に直接自動作成したい場合は、上部の「Googleでログイン」を行ってから再度ボタンを押してください。`;
+  } else if (manualMeasurementId) {
+    resultTitle.textContent = `🎉 指定の測定ID（${measurementId}）で計測タグを生成しました！`;
+    resultSubtitle.innerHTML = `ご指定の測定ID（<code>${measurementId}</code>）と選択された成果イベントコードを組み込んだタグです。このタグをあなたのWebサイトの <code>&lt;head&gt;</code> 内に貼り付けてください。`;
+  } else {
+    resultTitle.textContent = `📋 計測タグのひな形を生成しました`;
+    resultSubtitle.innerHTML = `仮の測定ID（<code>${measurementId}</code>）としてタグを生成しました。Google アナリティクス（<a href="https://analytics.google.com" target="_blank" style="color: var(--toy-blue); font-weight: bold;">analytics.google.com ↗</a>）でプロパティを作成後、発行された測定ID（G-xxxxxx）に書き換えるか、上の入力欄に測定IDを入れて再度生成してください。`;
   }
 
   const resultArea = document.getElementById("wizardResult");
