@@ -119,9 +119,29 @@ ga4-yomiyasui/
 ├── screenshots/        # README用スクリーンショット
 │   ├── dashboard.png   # ダッシュボード画面
 │   └── wizard.png      # 初期設定ウィザード画面
+├── automation/         # Python CLI自動化ツール（プロパティ・ストリーム作成）
+│   ├── src/            # Pythonソースコード
+│   ├── tests/          # 単体テスト
+│   ├── docs/           # ADR・アーキテクチャドキュメント
+│   └── README.md       # CLI使用方法（日本語）
 ├── LICENSE             # MIT License
-└── README.md           # 本書
+└── README.md           # 本書（フロントエンド）
 ```
+
+---
+
+## 🤖 Python CLI 自動化ツール
+
+プロパティ・データストリーム・キーイベントの作成を自動化するPython CLIを `automation/` に同梱しています。
+
+```bash
+cd automation
+pip install -e .
+ga4-setup list-accounts
+ga4-setup setup --account-id YOUR_ID --name "サイト名" --url "https://example.com"
+```
+
+詳細は [automation/README.md](automation/README.md) を参照してください。
 
 ---
 
