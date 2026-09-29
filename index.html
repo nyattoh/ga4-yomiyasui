@@ -159,8 +159,21 @@
                 <option value="">アカウントを読み込み中...</option>
               </select>
               <p style="font-size: 0.78rem; color: var(--text-secondary); margin: 6px 0 0; line-height: 1.5;">
-                💡 会社等から「閲覧のみ」で共有されているアカウントでは作成できません。作成エラーが出る場合は、別のアカウントを選択するか、上の「計測タグだけ生成」をお選びください。
+                💡 <code>Chrome Web Store developer properties</code> などの特殊な管理アカウントや、閲覧専用アカウントには新規サイトを作成できません。
               </p>
+              <div style="margin-top: 10px; padding: 10px 14px; background: #ffffff; border-radius: var(--radius-sm); border: 1.5px dashed var(--toy-blue-border); font-size: 0.8rem; line-height: 1.6;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                  <span style="font-weight: 700; color: var(--toy-blue);">
+                    ➕ 一覧に自分のアカウントがない場合（新規作成）
+                  </span>
+                  <a href="https://analytics.google.com/analytics/web/#/admin" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 4px 12px; font-size: 0.78rem; text-decoration: none;">
+                    Google 公式でアカウント作成 ↗
+                  </a>
+                </div>
+                <p style="margin: 4px 0 0; color: var(--text-muted); font-size: 0.76rem;">
+                  ※ Google のセキュリティ規約上、最初の「アカウント」作成のみ Google アナリティクス公式サイトで行う必要があります（約1分・規約同意）。作成後に更新（🔄）すると一覧に反映されます。
+                </p>
+              </div>
             </div>
             <div class="form-grid">
               <div class="form-group">
@@ -732,11 +745,22 @@
             </p>
           </div>
 
-          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px;">
+          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px;">
             <strong style="color: var(--text-main);">③ Google アナリティクスアカウントに対する編集権限はありますか？</strong>
             <p style="margin: 4px 0 0; font-size: 0.825rem; color: var(--text-secondary);">
               初期設定ウィザードで新規プロパティを作成する場合、選択した Google アカウント側で「管理者」または「編集者」権限が必要です。「閲覧者」権限のみのアカウントでは作成できません。
             </p>
+          </div>
+
+          <div style="background: var(--bg-main); border: 1.5px solid var(--border); border-radius: var(--radius-md); padding: 14px;">
+            <strong style="color: var(--text-main);">④ <code>Chrome Web Store developer properties</code> などを選んでいませんか？</strong>
+            <p style="margin: 4px 0 8px; font-size: 0.825rem; color: var(--text-secondary);">
+              Chrome拡張機能向けにGoogleが自動作成したアカウントには、一般的なWebサイトを追加することはGoogleのセキュリティ仕様上できません。<br />
+              まだWebサイト用の Google アナリティクス アカウントをお持ちでない場合は、Google 公式画面で新規作成（約1分・無料）してください。
+            </p>
+            <a href="https://analytics.google.com/analytics/web/#/admin" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 5px 14px; font-size: 0.8rem; text-decoration: none;">
+              Google 公式でアカウントを新規作成する ↗
+            </a>
           </div>
         </div>
 
